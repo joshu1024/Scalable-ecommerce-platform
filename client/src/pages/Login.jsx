@@ -25,6 +25,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("BASE_URL:", import.meta.env.VITE_API_BASE_URL); // ← add this
+    console.log("Submitting:", formData);
     try {
       const res = await dispatch(loginUser(formData)).unwrap();
 

@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 
 import prisma from "./config/prisma.js";
+console.log("USER ROUTES LOADED");
 
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -62,7 +63,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/paypal", paypalRoutes);
 app.use("/api/admin", adminRoutes);
-
+console.log("USER ROUTES LOADED");
 /* ---------- Static Uploads ---------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
