@@ -128,3 +128,54 @@ export const clearCart = async (req, res) => {
     res.status(500).json({ message: "Failed to clear cart" });
   }
 };
+
+// cartController.js
+export const removeCartItem = async (req, res) => {
+  console.log("🗑️ cartItemId:", req.params.cartItemId); // ← add this
+  console.log("👤 userId:", req.user?.userId); // ← add this
+  try {
+    const { cartItemId } = req.params;
+    const userId = req.user.userId;
+
+    // verify the cart item belongs to this user
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { cart: true },
+    });
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    if (cartItem.cart.userId !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await prisma.cartItem.delete({ where: { id: cartItemId } });
+
+    // return updated cart
+    const updatedCart = await prisma.cart.findFirst({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                newPrice: true,
+                oldPrice: true,
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.status(200).json({ cart: updatedCart });
+  } catch (error) {
+    console.error("❌ removeCartItem error:", error);
+    res.status(500).json({ message: "Failed to remove item" });
+  }
+};

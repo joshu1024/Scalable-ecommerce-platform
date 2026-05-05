@@ -39,16 +39,15 @@ const Checkout = () => {
 
       <ul>
         {items.map((item) => (
-          <li key={item.productId?._id || item._id}>
-            {item.productId?.images && (
+          <li key={item.product?._id || item._id}>
+            {item.product?.images && (
               <img
-                src={item.productId.images[0]}
-                alt={item.productId?.name}
+                src={item.product.images[0]}
+                alt={item.product?.name}
                 style={{ width: "50px", marginRight: "10px" }}
               />
             )}
-            {item.productId?.name} — {item.quantity} × $
-            {item.productId?.newPrice}
+            {item.product?.name} — {item.quantity} × ${item.product?.newPrice}
           </li>
         ))}
       </ul>
@@ -82,7 +81,7 @@ const Checkout = () => {
             onApprove={(data, actions) => {
               return fetch(
                 `${BASE_URL}/api/paypal/capture-order/${data.orderID}`,
-                { method: "POST" }
+                { method: "POST" },
               )
                 .then((res) => res.json())
                 .then((details) => {

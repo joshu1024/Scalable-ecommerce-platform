@@ -25,18 +25,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("BASE_URL:", import.meta.env.VITE_API_BASE_URL); // ← add this
-    console.log("Submitting:", formData);
     try {
       const res = await dispatch(loginUser(formData)).unwrap();
 
       toast.success("Logged in successfully");
 
-      // Optional: decode JWT to check expiration or roles
       const decoded = jwtDecode(res.token);
-      console.log("Decoded Token:", decoded);
 
-      // Redirect logic
       if (res.user.role === "admin") {
         navigate("/admin/dashboard", { replace: true });
       } else {

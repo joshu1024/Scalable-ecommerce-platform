@@ -62,7 +62,7 @@ const Cart = () => {
           <div className="space-y-4">
             {items.map((item, index) => (
               <div
-                key={`${item.product?._id || item._id}-${index}`}
+                key={item.id || index}
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-4"
               >
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 w-full">
@@ -90,7 +90,7 @@ const Cart = () => {
                     color="error"
                     size="small"
                     onClick={() => {
-                      dispatch(removeFromCart(item.product?._id));
+                      dispatch(removeFromCart(item.id));
                       toast.success(`${item.product?.name} removed`);
                     }}
                   >
@@ -100,7 +100,11 @@ const Cart = () => {
               </div>
             ))}
           </div>
-
+          <div>
+            {items.map((item, index) => {
+              console.log("Cart item:", item);
+            })}
+          </div>
           <div className="mt-6 text-center sm:text-right">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Total: ${Number(totalPrice || 0).toFixed(2)}

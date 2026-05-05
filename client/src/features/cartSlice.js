@@ -69,6 +69,19 @@ export const checkoutCart = createAsyncThunk(
   },
 );
 
+export const removeFromCartAsync = createAsyncThunk(
+  "cart/removeFromCart",
+  async (cartItemId, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `${BASE_URL}/api/cart/removeItem/${cartItemId}`,
+      );
+      return response.data.cart;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
 const initialState = {
   items: JSON.parse(localStorage.getItem("cartItems")) || [],
   totalPrice: 0,
@@ -131,6 +144,16 @@ const cartSlice = createSlice({
         state.items = [];
         state.totalPrice = 0;
         saveCart(state.items);
+      })
+      .addCase(removeFromCartAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload?.items || [];
+        state.totalPrice = calculateTotal(state.items);
+        saveCart(state.items);
+      })
+      .addCase(removeFromCartAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
