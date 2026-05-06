@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
@@ -133,20 +133,16 @@ function App() {
         />
 
         {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="products/new" element={<NewProduct />} />
-          <Route path="products/edit/:id" element={<EditProduct />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="users" element={<Users />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="products/new" element={<NewProduct />} />
+            <Route path="products/edit/:id" element={<EditProduct />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="users" element={<Users />} />
+          </Route>
         </Route>
       </Routes>
 

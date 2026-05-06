@@ -59,8 +59,6 @@ export const fetchCurrentUser = createAsyncThunk(
     }
   },
 );
-const savedUserData = localStorage.getItem("user");
-const savedUser = savedUserData ? JSON.parse(savedUserData) : null;
 
 const initialState = {
   user: null,

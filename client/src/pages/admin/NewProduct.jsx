@@ -27,10 +27,7 @@ const NewProduct = () => {
       }
 
       await axios.post(`${BASE_URL}/api/products/add`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       toast.success("Product created successfully");
       navigate("/admin/products");

@@ -6,7 +6,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  const BASE_URL = "http://localhost:4000";
 
   useEffect(() => {
     fetchOrders();
@@ -20,7 +20,7 @@ const Orders = () => {
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
-      setError("Failed to load orders");
+      setError("Failed to load orders", err);
       setLoading(false);
     }
   };
@@ -44,8 +44,8 @@ const Orders = () => {
       });
       setOrders((prev) =>
         prev.map((order) =>
-          order._id === id ? { ...order, status: newStatus } : order
-        )
+          order._id === id ? { ...order, status: newStatus } : order,
+        ),
       );
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -128,12 +128,12 @@ const Orders = () => {
                         order.status === "Delivered"
                           ? "bg-green-100 text-green-700"
                           : order.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : order.status === "Cancelled"
-                          ? "bg-red-100 text-red-700"
-                          : order.status === "Processing"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-600"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : order.status === "Cancelled"
+                              ? "bg-red-100 text-red-700"
+                              : order.status === "Processing"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {order.status}

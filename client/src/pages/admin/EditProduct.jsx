@@ -29,9 +29,7 @@ const EditProduct = () => {
     e.preventDefault();
     try {
       await axios.put(`${BASE_URL}/api/products/${id}`, product, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       navigate("/admin/products");
     } catch (err) {

@@ -242,12 +242,21 @@ export const deleteUser = async (req, res) => {
         .json({ message: "You cannot delete your own account" });
     }
 
-    const user = await prisma.user.delete({
-      where: { id },
-    });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const userCart = await prisma.cart.findFirst({ where: { userId: id } });
+    if (userCart) {
+      await prisma.cartItem.deleteMany({ where: { cartId: userCart.id } });
+      await prisma.cart.delete({ where: { id: userCart.id } });
+    }
 
-    res.json({ message: "User deleted successfully", user });
+    const userOrders = await prisma.order.findMany({ where: { userId: id } });
+    for (const order of userOrders) {
+      await prisma.orderItem.deleteMany({ where: { orderId: order.id } });
+    }
+    await prisma.order.deleteMany({ where: { userId: id } });
+
+    await prisma.user.delete({ where: { id } });
+
+    res.json({ message: "User deleted successfully" });
   } catch (err) {
     console.error("❌ Error deleting user:", err);
     res.status(500).json({ message: "Failed to delete user" });

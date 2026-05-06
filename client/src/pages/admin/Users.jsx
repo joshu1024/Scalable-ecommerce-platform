@@ -14,9 +14,7 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       setUsers(res.data);
     } catch (err) {
@@ -30,11 +28,9 @@ const Users = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${BASE_URL}/api/admin/users/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
-      setUsers(users.filter((u) => u._id !== id));
+      setUsers(users.filter((u) => u.id !== id));
       toast.success("User deleted successfully");
     } catch (err) {
       console.error(err);
@@ -47,16 +43,14 @@ const Users = () => {
     const newRole = user.role === "admin" ? "user" : "admin";
     try {
       await axios.put(
-        `${BASE_URL}/api/admin/users/${user._id}`,
+        `${BASE_URL}/api/admin/users/${user.id}`,
         { role: newRole },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+          withCredentials: true,
+        },
       );
       setUsers(
-        users.map((u) => (u._id === user._id ? { ...u, role: newRole } : u))
+        users.map((u) => (u.id === user.id ? { ...u, role: newRole } : u)),
       );
       toast.success(`User role updated to ${newRole}`);
     } catch (err) {
@@ -68,7 +62,7 @@ const Users = () => {
   const filteredUsers = users.filter(
     (u) =>
       (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-      (u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
+      (u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false),
   );
 
   return (

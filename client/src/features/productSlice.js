@@ -8,9 +8,7 @@ export const fetchProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${BASE_URL}/api/admin/products`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       return res.data;
     } catch (err) {
@@ -26,9 +24,7 @@ export const getProductById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await axios.get(`${BASE_URL}/api/admin/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       return id;
     } catch (err) {
@@ -43,9 +39,7 @@ export const deleteProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await axios.delete(`${BASE_URL}/api/admin/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true,
       });
       toast.success("Product deleted successfully");
       return id;
@@ -70,17 +64,19 @@ const productSlice = createSlice({
       // ✅ Fetch products
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
+        state.error = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.products = state.products.filter((p) => p._id !== action.payload);
+        state.products = state.products.filter((p) => p.id !== action.payload);
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.error = action.payload;

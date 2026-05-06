@@ -129,9 +129,7 @@ export const clearCart = async (req, res) => {
   }
 };
 
-// cartController.js
 export const removeCartItem = async (req, res) => {
-  console.log("🔌 DB URL:", process.env.DATABASE_URL);
   try {
     const { cartItemId } = req.params;
     const userId = req.user?.id;

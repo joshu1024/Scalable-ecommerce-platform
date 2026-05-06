@@ -1,16 +1,11 @@
 import jwt from "jsonwebtoken";
-import prisma from "../config/prisma.js"; // your Prisma client
+import prisma from "../config/prisma.js";
 
 const protectRoute = async (req, res, next) => {
   try {
-    let token;
+    const token = req.cookies?.jwt;
 
-    if (req.headers.authorization?.startsWith("Bearer ")) {
-      token = req.headers.authorization.split(" ")[1];
-    } else if (req.cookies?.jwt) {
-      token = req.cookies.jwt;
-    }
-
+    console.log("AUTH HEADER:", req.cookies.jwt);
     if (!token) {
       return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
