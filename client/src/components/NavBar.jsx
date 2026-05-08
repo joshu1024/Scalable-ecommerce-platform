@@ -31,7 +31,6 @@ const NavBar = () => {
   const handleLogout = async () => {
     await dispatch(logOutUser());
     dispatch({ type: "cart/clearCart" });
-    localStorage.removeItem("user");
     toast.success("Logged out successfully");
     navigate("/login");
   };

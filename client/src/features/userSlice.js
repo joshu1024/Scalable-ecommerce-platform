@@ -100,7 +100,6 @@ export const userSlice = createSlice({
       .addCase(logOutUser.fulfilled, (state) => {
         state.user = null;
         state.isLoggedIn = false;
-        localStorage.removeItem("user");
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;

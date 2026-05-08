@@ -78,9 +78,7 @@ const Cart = () => {
 
                 <div className="mt-3 sm:mt-0 flex justify-center sm:justify-end">
                   <button
-                    variant="outlined"
-                    color="error"
-                    size="small"
+                    className="bg-red-400 hover:bg-red-500 px-4 py-2 text-white rounded-md"
                     onClick={() => {
                       dispatch(removeFromCartAsync(item.id));
                       toast.success(`${item.product?.name} removed`);
@@ -99,16 +97,15 @@ const Cart = () => {
             </h3>
 
             <div className="flex flex-col sm:flex-row justify-center sm:justify-end gap-3">
-              <Button
-                variant="contained"
-                color="secondary"
+              <button
+                className="bg-red-500 hover:bg-red-600 px-4 py-2 text-white rounded-md"
                 onClick={() => {
                   dispatch(clearCartAsync());
                   toast.success("Cart cleared!");
                 }}
               >
                 Clear Cart
-              </Button>
+              </button>
 
               <button
                 onClick={() => navigate("/checkout")}
