@@ -30,7 +30,6 @@ const AdminDashboard = () => {
 
   const handleLogout = async () => {
     await dispatch(logOutUser());
-    localStorage.removeItem("token");
     navigate("/login");
   };
 

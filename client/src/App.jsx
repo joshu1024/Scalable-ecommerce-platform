@@ -2,7 +2,6 @@ import "./App.css";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import axios from "axios";
 import { fetchCart } from "./features/cartSlice.js";
 import Home from "./pages/Home";
 import NavBar from "./components/NavBar";

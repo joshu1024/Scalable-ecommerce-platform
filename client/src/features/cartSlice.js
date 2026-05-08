@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-axios.defaults.withCredentials = true;
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
 export const addToCartAsync = createAsyncThunk(
@@ -128,8 +126,7 @@ const cartSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(clearCartAsync.pending, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.loading = true;
       })
       .addCase(clearCartAsync.fulfilled, (state) => {
         state.loading = false;
@@ -152,5 +149,4 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

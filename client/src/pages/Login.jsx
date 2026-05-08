@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../features/userSlice.js";
 import { toast } from "react-hot-toast";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,6 @@ const Login = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const from = location.state?.from?.pathname || "/";
 

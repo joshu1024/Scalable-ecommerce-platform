@@ -72,10 +72,6 @@ export const loginUser = async (req, res) => {
 };
 export const logOutUser = async (req, res) => {
   try {
-    const token = req.cookies?.jwt;
-    if (token) {
-      await prisma.tokenBlacklist.create({ data: { token } });
-    }
     res.cookie("jwt", "", { maxAge: 0 });
     res
       .status(200)
