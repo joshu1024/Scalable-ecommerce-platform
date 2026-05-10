@@ -66,17 +66,20 @@ export const getAllProducts = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
     const trimmedId = id.trim();
 
-    const product = await prisma.product.delete({
-      where: { id: trimmedId },
-    });
+    await prisma.$transaction([
+      prisma.cartItem.deleteMany({ where: { productId: trimmedId } }),
+      prisma.orderItem.deleteMany({ where: { productId: trimmedId } }),
+      prisma.product.delete({ where: { id: trimmedId } }),
+    ]);
+
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     if (error.code === "P2025") {
       return res.status(404).json({ message: "Product not found" });
     }
+    console.error("❌ Error deleting product:", error); // ✅ add this to see full error on Render logs
     res.status(500).json({ message: "Server error while deleting product" });
   }
 };

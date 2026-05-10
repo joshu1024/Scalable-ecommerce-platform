@@ -1,86 +1,125 @@
-🛒 MERN E-Commerce App with Admin Dashboard
+# 👟 SneakerZone — Full-Stack E-Commerce App
 
-Production-ready MERN e-commerce platform with JWT authentication, PayPal payments, admin product management, and scalable Redux Toolkit state architecture.
+A production-ready full-stack ecommerce platform built with React, Redux Toolkit, Node.js, Express, PostgreSQL, and Prisma. Features JWT authentication, PayPal payments, Cloudinary image uploads, and a full Admin Dashboard.
 
-This project delivers a complete online shopping experience — including secure authentication, product management, cart and checkout flow, PayPal payment integration, and an advanced Admin Dashboard for managing users, orders, and products in real-time.
+![React](https://img.shields.io/badge/Frontend-React-blue)
+![Node](https://img.shields.io/badge/Backend-Node.js-green)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
+![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748)
+![License](https://img.shields.io/github/license/joshu1024/mern-ecommerce)
 
-🚀 Features
-🛍️ User Features
+---
 
-🔐 JWT-based Authentication (Login, Register, Logout)
+## 🌐 Live Demo
 
-🛒 Add to Cart / Remove from Cart
+- 🛍️ **Frontend (Vercel)** → [mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app](https://mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app/)
+- ⚙️ **Backend (Render)** → [mern-ecommerce-4ahr.onrender.com](https://mern-ecommerce-4ahr.onrender.com/)
 
-🛍️ Product Filtering, Sorting & Search
+---
 
-💳 PayPal Payment Integration
+## 🚀 Features
 
-📦 Order Tracking
+### 🛍️ User Features
 
-👤 Profile Management
+- 🔐 JWT-based Authentication — Login, Register, Logout
+- 🛒 Add to Cart / Remove from Cart / Clear Cart
+- 🔍 Product Search, Category & Brand Filtering
+- 💳 PayPal Sandbox Payment Integration
+- 📦 Order History & Tracking
+- 👤 User Profile Management
 
-🧑‍💼 Admin Dashboard
+### 🧑‍💼 Admin Dashboard
 
-Manage your e-commerce system efficiently with real-time control:
+- 📦 **Product Management** — Add, Edit, Delete products with Cloudinary image uploads
+- 👥 **User Management** — View all users, toggle roles, delete accounts
+- 🧾 **Order Management** — View all orders, update order status
+- 📊 **Analytics** — Revenue charts, order trends, stats overview powered by Recharts
 
-📦 Product Management
+---
 
-Add, Edit, and Delete products
+## 🧠 Tech Stack
 
-Manage stock and product images
+### Frontend
 
-👥 User Management
+| Technology       | Purpose                 |
+| ---------------- | ----------------------- |
+| React (Vite)     | UI framework            |
+| Redux Toolkit    | Global state management |
+| Tailwind CSS     | Styling                 |
+| Axios            | HTTP requests           |
+| React Router DOM | Client-side routing     |
+| Recharts         | Admin analytics charts  |
+| Framer Motion    | UI animations           |
 
-View all registered users
+### Backend
 
-Change user roles (Admin / Customer)
+| Technology          | Purpose                             |
+| ------------------- | ----------------------------------- |
+| Node.js + Express   | REST API server                     |
+| PostgreSQL          | Relational database                 |
+| Prisma ORM          | Database access and migrations      |
+| JWT + bcryptjs      | Authentication and password hashing |
+| PayPal REST API     | Payment processing                  |
+| Cloudinary + Multer | Image storage and uploads           |
+| express-rate-limit  | Brute force protection              |
 
-Delete users
+---
 
-🧾 Order Management
+## 🔐 Security Features
 
-View all orders
+- **httpOnly cookies** — JWT stored in httpOnly cookie, not localStorage, protecting against XSS
+- **Role-based access control** — Separate auth and admin middleware on all protected routes
+- **bcrypt password hashing** — Passwords never stored in plain text
+- **Rate limiting** — Login and register endpoints limited to 10 requests per 15 minutes
+- **CORS protection** — Only whitelisted origins can make requests
+- **Environment variables** — All secrets stored in .env, never committed to source control
+- **Prisma Role enum** — User roles enforced at database schema level
 
-Update order status
+---
 
-📊 Analytics Dashboard
+## 📂 Folder Structure
 
-Interactive charts and graphs for orders, revenue, and users (powered by MongoDB data)
+```
+mern-ecommerce/
+│
+├── client/                     # React + Vite frontend
+│   ├── src/
+│   │   ├── app/                # Redux store setup
+│   │   ├── features/           # Redux slices (cart, product, user, order, admin)
+│   │   ├── components/         # Reusable UI components (NavBar, Footer, etc.)
+│   │   ├── pages/              # Home, Product, Cart, Checkout, Profile, Admin pages
+│   │   ├── layout/             # AdminLayout
+│   │   ├── middleware/         # ProtectedRoute, AdminRoute
+│   │   └── assets/             # Images, data.js
+│   ├── public/
+│   └── vite.config.js
+│
+├── server/                     # Express + PostgreSQL backend
+│   ├── config/                 # Prisma client, Cloudinary config, env
+│   ├── controllers/            # Route controllers (user, product, cart, order, admin)
+│   ├── middleware/             # authMiddleware, adminMiddleware
+│   ├── prisma/                 # schema.prisma + migrations
+│   ├── routes/                 # Express route definitions
+│   ├── utils/                  # generateToken helper
+│   └── server.js
+│
+└── README.md
+```
 
-🧠 Tech Stack
+---
 
-Frontend
+## ⚙️ Installation & Setup
 
-⚛️ React (Vite)
+### 1. Clone the Repository
 
-🧠 Redux Toolkit (State Management)
-
-🎨 Tailwind CSS
-
-🔌 Axios
-
-🔐 React Router DOM
-
-📈 Recharts (Admin analytics)
-
-Backend
-
-🟢 Node.js + Express.js
-
-🍃 MongoDB + Mongoose
-
-🔒 JWT Authentication + bcryptjs
-
-💵 PayPal REST API Integration
-
-☁️ Multer (for image uploads)
-
-⚙️ Installation & Setup
-1️⃣ Clone the Repository
+```bash
 git clone https://github.com/joshu1024/mern-ecommerce.git
 cd mern-ecommerce
+```
 
-2️⃣ Install Dependencies
+### 2. Install Dependencies
+
+```bash
 # Frontend
 cd client
 npm install
@@ -88,206 +127,185 @@ npm install
 # Backend
 cd ../server
 npm install
+```
 
-3️⃣ Configure Environment Variables
+### 3. Configure Environment Variables
 
-Create a .env file inside the server/ directory:
+Create a `.env` file inside the `server/` directory:
 
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+```env
+DATABASE_URL=your_postgresql_connection_string
+JWT_SECRET=your_jwt_secret_key
+PORT=4000
+NODE_ENV=development
+ALLOWED_ORIGINS=http://localhost:5173
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
 PAYPAL_CLIENT_ID=your_paypal_client_id
-PORT=5000
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+```
 
-4️⃣ Run Development Servers
-# Terminal 1 - Backend
+Create a `.env` file inside the `client/` directory:
+
+```env
+VITE_API_BASE_URL=http://localhost:4000
+VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
+```
+
+### 4. Set Up the Database
+
+```bash
+cd server
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+### 5. Run Development Servers
+
+```bash
+# Terminal 1 — Backend
 cd server
 npm run dev
 
-# Terminal 2 - Frontend
+# Terminal 2 — Frontend
 cd client
 npm run dev
+```
 
+App runs on: **http://localhost:5173**
 
-App runs on: http://localhost:5173
+---
 
-☁️ Deployment Guide
-🚀 Deploy Backend on Render
+## ☁️ Deployment
 
-Go to Render.com
+### Backend on Render
 
-Click “New +” → “Web Service”
+1. Go to [Render.com](https://render.com) → New Web Service
+2. Connect your GitHub repository
+3. Set Root Directory → `server`
+4. Build Command: `npm install && npx prisma generate`
+5. Start Command: `npm start`
+6. Add environment variables:
 
-Connect your GitHub repository
+```env
+DATABASE_URL=your_render_postgres_url
+JWT_SECRET=your_secret
+NODE_ENV=production
+ALLOWED_ORIGINS=https://your-frontend.vercel.app
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+PAYPAL_CLIENT_ID=...
+PAYPAL_CLIENT_SECRET=...
+```
 
-Set Root Directory → server
+### Frontend on Vercel
 
-Build Command:
+1. Go to [Vercel.com](https://vercel.com) → Import GitHub repo
+2. Set Root Directory → `client`
+3. Add environment variables:
 
-npm install
+```env
+VITE_API_BASE_URL=https://your-backend.onrender.com
+VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
+```
 
+### Run Production Database Migrations
 
-Start Command:
+```bash
+DATABASE_URL="your_render_postgres_url" npx prisma migrate deploy
+```
 
-npm start
+---
 
+## 🗄️ Database Schema
 
-Add environment variables from .env
+The app uses PostgreSQL with the following relational models:
 
-Deploy 🎉
-Render URL example:
+```
+User ──< Order ──< OrderItem >── Product
+User ──< Cart  ──< CartItem  >── Product
+```
 
-https://mern-ecommerce-server.onrender.com
+- **User** — stores credentials, role (user/admin)
+- **Product** — name, price, brand, category, images, stock
+- **Cart / CartItem** — per-user server-side cart
+- **Order / OrderItem** — completed orders with status tracking
 
-🌐 Deploy Frontend on 🅰️ Vercel
+---
 
-Go to Vercel
+## 🎥 Screenshots
 
-Import GitHub repo
+### 🏠 Home Page
 
-Root directory → client
+<img width="1920" height="1080" alt="Home Page" src="https://github.com/user-attachments/assets/8506c265-1881-4bfb-a729-60d482a90264" />
+<img width="1920" height="1080" alt="Home Page 2" src="https://github.com/user-attachments/assets/1c32ca3f-9183-464a-9a16-303497b11d5f" />
+<img width="1920" height="1080" alt="Home Page 3" src="https://github.com/user-attachments/assets/c1aa2eaf-994d-444d-acda-08d4713f688e" />
+<img width="1920" height="1080" alt="Home Page 4" src="https://github.com/user-attachments/assets/53f44390-0a13-4dce-91cb-f46516cb22c5" />
+<img width="1920" height="1080" alt="Home Page 5" src="https://github.com/user-attachments/assets/ba5fb32e-0ffb-4ea2-b897-3d22d9cf94e8" />
 
-Add environment variable:
+### 👟 Product Details
 
-VITE_API_BASE_URL=https://mern-ecommerce-server.onrender.com
+<img width="1920" height="1080" alt="Product Details" src="https://github.com/user-attachments/assets/a60c09a5-7133-483c-8080-84081f1f3473" />
+<img width="1920" height="1080" alt="Product Details 2" src="https://github.com/user-attachments/assets/4b778b32-327b-44e2-a031-f5874a68dde4" />
+<img width="1920" height="1080" alt="Product Details 3" src="https://github.com/user-attachments/assets/4471e168-2ab3-4d36-bd49-1353694b737e" />
 
+### 🛒 Cart & Checkout
 
-Deploy 🎉
-Example:
-mern-ecommerce-26w1.vercel.app
+<img width="1920" height="1080" alt="Cart" src="https://github.com/user-attachments/assets/906d7e39-9383-4523-b139-7da10183bae7" />
+<img width="1920" height="1080" alt="Checkout" src="https://github.com/user-attachments/assets/3efdc162-5dfb-410b-8c50-3b30a63e04f0" />
+<img width="1920" height="1080" alt="PayPal" src="https://github.com/user-attachments/assets/ea11f694-9e96-4e48-8dc5-0fd1de661eba" />
+<img width="1920" height="1080" alt="Order Summary" src="https://github.com/user-attachments/assets/33fd0c5c-0d17-4a2f-89eb-d9c636808c4c" />
+<img width="1920" height="1080" alt="Checkout 2" src="https://github.com/user-attachments/assets/f3b7a543-caa8-4075-98c2-007db948ff35" />
 
+### 🔐 Authentication
 
-📂 Folder Structure
-mern-ecommerce/
-│
-├── client/                   # React + Vite frontend
-│   ├── src/
-│   │   ├── app/              # Redux store setup
-│   │   ├── features/         # Redux slices (cart, product, user, etc.)
-│   │   ├── components/       # Reusable UI components
-│   │   ├── pages/            # Home, Product, Cart, Checkout, Admin pages
-│   │   └── assets/           # Images, data.js
-|   |   |__ layout/           # AdminLayout
-|   |    ├── assets/          # images/ ,data.js    
-│   ├── public/
-│   └── vite.config.js
-│
-├── server/                   # Express + MongoDB backend
-│   ├── config/               # Database connection
-│   ├── controllers/          # Route controllers
-│   ├── middleware/           # Auth & error handlers
-│   ├── models/               # Mongoose schemas
-│   ├── routes/               # Express route definitions
-│   ├── utils/                # Helper functions
-│   └── server.js
-│
-└── README.md
+<img width="1920" height="1080" alt="Login" src="https://github.com/user-attachments/assets/62a3d7b7-7f30-4cbc-af02-d1978ccd48fb" />
+<img width="1920" height="1080" alt="Register" src="https://github.com/user-attachments/assets/b8bca4bc-a492-4ab7-bab2-fac4d07066b4" />
 
-📊 Admin Dashboard Preview
+### 🧑‍💼 Admin Dashboard
 
-The admin panel provides:
+<img width="1920" height="1080" alt="Admin Dashboard" src="https://github.com/user-attachments/assets/548b0d88-f0d9-460b-9057-887732f676f1" />
+<img width="1920" height="1080" alt="Admin Products" src="https://github.com/user-attachments/assets/1c4f7a0d-9819-41d0-a36e-6b9cbe85588d" />
+<img width="1920" height="1080" alt="Admin Orders" src="https://github.com/user-attachments/assets/acb743fe-c965-4a97-88ff-9c8cf1d5665f" />
+<img width="1920" height="1080" alt="Admin Users" src="https://github.com/user-attachments/assets/d909b01d-d55b-42d4-8b02-e2564561efbe" />
+<img width="1920" height="1080" alt="Admin Analytics" src="https://github.com/user-attachments/assets/6fbea047-5cce-4cf2-b14b-d01eac94e56e" />
 
-Overview cards (Total Users, Orders, Products)
+---
 
-Order & revenue charts
-
-Table views for all collections (Users, Orders, Products)
-
-Edit/Delete buttons with modal confirmations
-
-🎥 Live Demo & Screenshots
-🌐 Live Demo -> https://mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app/
-
-🛍️ Frontend (Vercel) → [https://mern-ecommerce.vercel.app](https://mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app/)
-
-⚙️ Backend (Render) → [https://mern-ecommerce-server.onrender.com](https://mern-ecommerce-4ahr.onrender.com/)
-
-🏠 Home Page
-
-Showcases featured products with a responsive slider, category filters, and quick “Add to Cart” buttons.
-🖼️ Screenshot:
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8506c265-1881-4bfb-a729-60d482a90264" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1c32ca3f-9183-464a-9a16-303497b11d5f" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c1aa2eaf-994d-444d-acda-08d4713f688e" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/53f44390-0a13-4dce-91cb-f46516cb22c5" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ba5fb32e-0ffb-4ea2-b897-3d22d9cf94e8" />
-
-
-👟 Product Details
-Displays detailed product info, multiple images, and an “Add to Cart” button with quantity selector.
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a60c09a5-7133-483c-8080-84081f1f3473" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4b778b32-327b-44e2-a031-f5874a68dde4" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4471e168-2ab3-4d36-bd49-1353694b737e" />
-
-
-🛒 Shopping Cart & Checkout
-Secure checkout with dynamic cart totals, order summary, and PayPal payment integration.
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/906d7e39-9383-4523-b139-7da10183bae7" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3efdc162-5dfb-410b-8c50-3b30a63e04f0" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ea11f694-9e96-4e48-8dc5-0fd1de661eba" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/33fd0c5c-0d17-4a2f-89eb-d9c636808c4c" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f3b7a543-caa8-4075-98c2-007db948ff35" />
-
-
-🔐 User Authentication
-
-JWT-based login and registration with validation and protected routes.
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/62a3d7b7-7f30-4cbc-af02-d1978ccd48fb" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b8bca4bc-a492-4ab7-bab2-fac4d07066b4" />
-
-
-🧑‍💼 Admin Dashboard and 📊 Analytics
-
-A fully functional admin panel that gives control over products, users, and orders — complete with charts and tables.
-Real-time visualizations for sales, users, and revenue using Recharts and MongoDB aggregation.
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/548b0d88-f0d9-460b-9057-887732f676f1" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1c4f7a0d-9819-41d0-a36e-6b9cbe85588d" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/acb743fe-c965-4a97-88ff-9c8cf1d5665f" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d909b01d-d55b-42d4-8b02-e2564561efbe" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b43b53a2-a800-4588-b59b-5d455e0a475a" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6fbea047-5cce-4cf2-b14b-d01eac94e56e" />
-
-🧑‍💼 Demo Admin Login (add this block)
-### 🧑‍💼 Demo Admin Login
+## 🧑‍💼 Demo Admin Login
 
 Use the following credentials to explore the Admin Dashboard:
 
+| Field    | Value              |
+| -------- | ------------------ |
+| Email    | iamAdmin@gmail.com |
+| Password | 123456             |
 
+> ⚠️ Demo-only account for portfolio showcase. Do not use these credentials in production environments.
 
-Email: iamAdmin@gmail.com
+---
 
-Password: 123456
+## 🧑‍💻 Author
 
+**Joshua Kipamet Olting'idi**
 
-> ⚠️ *Demo-only account for portfolio showcase. Do not use these credentials in production environments.*
+- 💼 [LinkedIn](https://linkedin.com)
+- 🐦 [Twitter @JoeKipamet71036](https://twitter.com/JoeKipamet71036)
+- 💻 [GitHub @joshu1024](https://github.com/joshu1024)
 
-⚙️ Tech Architecture
+---
 
-Backend on Render + Frontend on Vercel, communicating via RESTful APIs and JWT authentication.
+## ⭐ Acknowledgements
 
-🧑‍💻 Author
+- Redux Toolkit Team
+- Prisma ORM Team
+- PayPal Developer Docs
+- Cloudinary
+- Vite + React Ecosystem
+- Render & Vercel
 
-Joshua Kipamet Olting’idi
-💼 LinkedIn
+---
 
-🐦 Twitter @JoeKipamet71036
-
-💻 GitHub @joshu1024
-
-⭐ Acknowledgements
-
-MERN Stack Community
-
-Redux Toolkit Team
-
-PayPal Developer Docs
-
-Vite + React Ecosystem
-
-Render & Vercel Docs
-
-💡 If you found this project helpful, please give it a ⭐ on GitHub! It helps others discover it.
-![License](https://img.shields.io/github/license/joshu1024/mern-ecommerce)
-![React](https://img.shields.io/badge/Frontend-React-blue)
-![Node](https://img.shields.io/badge/Backend-Node.js-green)
-![MongoDB](https://img.shields.io/badge/Database-MongoDB-brightgreen)
-
+💡 If you found this project helpful, please give it a ⭐ on GitHub!

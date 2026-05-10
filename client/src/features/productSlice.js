@@ -19,7 +19,6 @@ export const fetchProducts = createAsyncThunk(
     }
   },
 );
-
 export const getProductById = createAsyncThunk(
   "products/getProduct",
   async (id, { rejectWithValue }) => {
@@ -45,6 +44,12 @@ export const deleteProduct = createAsyncThunk(
       toast.success("Product deleted successfully");
       return id;
     } catch (err) {
+      console.error(
+        "❌ Delete error:",
+        err.response?.status,
+        err.response?.data,
+      ); // ✅ add this
+
       return rejectWithValue(
         err.response?.data?.message || "Failed to delete product",
       );
@@ -76,7 +81,12 @@ const productSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.products = state.products.filter((p) => p.id !== action.payload);
+        console.log("Redux payload:", action.payload);
+
+        state.products = state.products.filter((p) => {
+          console.log("Product ID:", p.id);
+          return p.id !== action.payload;
+        });
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.error = action.payload;
