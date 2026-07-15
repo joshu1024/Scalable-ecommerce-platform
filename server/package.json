@@ -12,6 +12,8 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/adapter-pg": "^7.8.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",
@@ -21,6 +23,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.5.1",
     "fs": "^0.0.1-security",
+    "groq-sdk": "^1.3.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",

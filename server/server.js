@@ -16,6 +16,7 @@ import paypalRoutes from "./routes/paypalRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import protectRoute from "./middleware/authMiddleware.js";
 import adminsOnly from "./middleware/adminMiddleware.js";
+import promptRoutes from "./routes/promptRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -64,6 +65,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/paypal", paypalRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/chat", promptRoutes);
 
 /* ---------- Static Uploads ---------- */
 const __filename = fileURLToPath(import.meta.url);

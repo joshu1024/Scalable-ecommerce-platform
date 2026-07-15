@@ -28,33 +28,19 @@ export const getAdminDashboard = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
     const { category, search } = req.query;
 
     const where = {};
     if (category) where.category = category;
     if (search) where.name = { contains: search, mode: "insensitive" };
 
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-        include: { orderItems: true, cartItems: true },
-      }),
-      prisma.product.count({ where }),
-    ]);
-
-    res.json({
-      products,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      totalProducts: total,
+    const products = await prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { orderItems: true, cartItems: true },
     });
+
+    res.status(200).json(products); // ✅ always a plain array
   } catch (error) {
     console.error("❌ Error fetching products:", error);
     res
@@ -176,6 +162,7 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 export const deleteOrder = async (req, res) => {
+  console.log("🔥 deleteProduct controller hit");
   try {
     const { id } = req.params;
     const order = await prisma.order.findUnique({
@@ -190,10 +177,13 @@ export const deleteOrder = async (req, res) => {
     await prisma.order.delete({ where: { id } });
     res.json({ message: "Order deleted successfully", order });
   } catch (error) {
-    if (error.code === "P2025") {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    res.status(500).json({ message: "Failed to delete order" });
+    console.error("❌ FULL DELETE ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    });
   }
 };
 

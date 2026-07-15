@@ -5,6 +5,9 @@ export const addProduct = async (req, res) => {
   try {
     const { name, oldPrice, newPrice, brand, category, stock } = req.body;
 
+    if (!name || !brand || !category || !newPrice) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
     // req.files[].path are already Cloudinary URLs
     const images = req.files ? req.files.map((file) => file.path) : [];
 
@@ -38,10 +41,10 @@ export const getProducts = async (req, res) => {
 };
 
 export const getProductById = async (req, res) => {
-  const userId = req.params.id;
+  const productId = req.params.id;
   try {
     const product = await prisma.product.findUnique({
-      where: { id: userId },
+      where: { id: productId },
     });
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
