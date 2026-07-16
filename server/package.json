@@ -29,7 +29,8 @@
     "multer-storage-cloudinary": "^4.0.0",
     "paypal-rest-sdk": "^1.8.1",
     "pg": "^8.20.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@prisma/client": "^7.8.0",
