@@ -21,3 +21,5 @@ export const promptMessage = async (req, res) => {
 
   res.json({ reply: response.choices[0].message.content });
 };
+
+export default generateProductDescription = async (req, res) => {};

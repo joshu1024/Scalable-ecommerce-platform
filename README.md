@@ -20,7 +20,6 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 ## 🚀 Features
 
 ### 🛍️ User Features
-
 - 🔐 JWT-based Authentication — Login, Register, Logout
 - 🛒 Add to Cart / Remove from Cart / Clear Cart
 - 🔍 Product Search, Category & Brand Filtering
@@ -29,7 +28,6 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 - 👤 User Profile Management
 
 ### 🧑‍💼 Admin Dashboard
-
 - 📦 **Product Management** — Add, Edit, Delete products with Cloudinary image uploads
 - 👥 **User Management** — View all users, toggle roles, delete accounts
 - 🧾 **Order Management** — View all orders, update order status
@@ -40,28 +38,26 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 ## 🧠 Tech Stack
 
 ### Frontend
-
-| Technology       | Purpose                 |
-| ---------------- | ----------------------- |
-| React (Vite)     | UI framework            |
-| Redux Toolkit    | Global state management |
-| Tailwind CSS     | Styling                 |
-| Axios            | HTTP requests           |
-| React Router DOM | Client-side routing     |
-| Recharts         | Admin analytics charts  |
-| Framer Motion    | UI animations           |
+| Technology | Purpose |
+|------------|---------|
+| React (Vite) | UI framework |
+| Redux Toolkit | Global state management |
+| Tailwind CSS | Styling |
+| Axios | HTTP requests |
+| React Router DOM | Client-side routing |
+| Recharts | Admin analytics charts |
+| Framer Motion | UI animations |
 
 ### Backend
-
-| Technology          | Purpose                             |
-| ------------------- | ----------------------------------- |
-| Node.js + Express   | REST API server                     |
-| PostgreSQL          | Relational database                 |
-| Prisma ORM          | Database access and migrations      |
-| JWT + bcryptjs      | Authentication and password hashing |
-| PayPal REST API     | Payment processing                  |
-| Cloudinary + Multer | Image storage and uploads           |
-| express-rate-limit  | Brute force protection              |
+| Technology | Purpose |
+|------------|---------|
+| Node.js + Express | REST API server |
+| PostgreSQL | Relational database |
+| Prisma ORM | Database access and migrations |
+| JWT + bcryptjs | Authentication and password hashing |
+| PayPal REST API | Payment processing |
+| Cloudinary + Multer | Image storage and uploads |
+| express-rate-limit | Brute force protection |
 
 ---
 
@@ -111,14 +107,12 @@ mern-ecommerce/
 ## ⚙️ Installation & Setup
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/joshu1024/mern-ecommerce.git
 cd mern-ecommerce
 ```
 
 ### 2. Install Dependencies
-
 ```bash
 # Frontend
 cd client
@@ -154,7 +148,6 @@ VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
 ### 4. Set Up the Database
-
 ```bash
 cd server
 npx prisma migrate dev --name init
@@ -162,7 +155,6 @@ npx prisma generate
 ```
 
 ### 5. Run Development Servers
-
 ```bash
 # Terminal 1 — Backend
 cd server
@@ -180,7 +172,6 @@ App runs on: **http://localhost:5173**
 ## ☁️ Deployment
 
 ### Backend on Render
-
 1. Go to [Render.com](https://render.com) → New Web Service
 2. Connect your GitHub repository
 3. Set Root Directory → `server`
@@ -201,7 +192,6 @@ PAYPAL_CLIENT_SECRET=...
 ```
 
 ### Frontend on Vercel
-
 1. Go to [Vercel.com](https://vercel.com) → Import GitHub repo
 2. Set Root Directory → `client`
 3. Add environment variables:
@@ -212,7 +202,6 @@ VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
 ### Run Production Database Migrations
-
 ```bash
 DATABASE_URL="your_render_postgres_url" npx prisma migrate deploy
 ```
@@ -238,7 +227,6 @@ User ──< Cart  ──< CartItem  >── Product
 ## 🎥 Screenshots
 
 ### 🏠 Home Page
-
 <img width="1920" height="1080" alt="Home Page" src="https://github.com/user-attachments/assets/8506c265-1881-4bfb-a729-60d482a90264" />
 <img width="1920" height="1080" alt="Home Page 2" src="https://github.com/user-attachments/assets/1c32ca3f-9183-464a-9a16-303497b11d5f" />
 <img width="1920" height="1080" alt="Home Page 3" src="https://github.com/user-attachments/assets/c1aa2eaf-994d-444d-acda-08d4713f688e" />
@@ -246,13 +234,11 @@ User ──< Cart  ──< CartItem  >── Product
 <img width="1920" height="1080" alt="Home Page 5" src="https://github.com/user-attachments/assets/ba5fb32e-0ffb-4ea2-b897-3d22d9cf94e8" />
 
 ### 👟 Product Details
-
 <img width="1920" height="1080" alt="Product Details" src="https://github.com/user-attachments/assets/a60c09a5-7133-483c-8080-84081f1f3473" />
 <img width="1920" height="1080" alt="Product Details 2" src="https://github.com/user-attachments/assets/4b778b32-327b-44e2-a031-f5874a68dde4" />
 <img width="1920" height="1080" alt="Product Details 3" src="https://github.com/user-attachments/assets/4471e168-2ab3-4d36-bd49-1353694b737e" />
 
 ### 🛒 Cart & Checkout
-
 <img width="1920" height="1080" alt="Cart" src="https://github.com/user-attachments/assets/906d7e39-9383-4523-b139-7da10183bae7" />
 <img width="1920" height="1080" alt="Checkout" src="https://github.com/user-attachments/assets/3efdc162-5dfb-410b-8c50-3b30a63e04f0" />
 <img width="1920" height="1080" alt="PayPal" src="https://github.com/user-attachments/assets/ea11f694-9e96-4e48-8dc5-0fd1de661eba" />
@@ -260,12 +246,10 @@ User ──< Cart  ──< CartItem  >── Product
 <img width="1920" height="1080" alt="Checkout 2" src="https://github.com/user-attachments/assets/f3b7a543-caa8-4075-98c2-007db948ff35" />
 
 ### 🔐 Authentication
-
 <img width="1920" height="1080" alt="Login" src="https://github.com/user-attachments/assets/62a3d7b7-7f30-4cbc-af02-d1978ccd48fb" />
 <img width="1920" height="1080" alt="Register" src="https://github.com/user-attachments/assets/b8bca4bc-a492-4ab7-bab2-fac4d07066b4" />
 
 ### 🧑‍💼 Admin Dashboard
-
 <img width="1920" height="1080" alt="Admin Dashboard" src="https://github.com/user-attachments/assets/548b0d88-f0d9-460b-9057-887732f676f1" />
 <img width="1920" height="1080" alt="Admin Products" src="https://github.com/user-attachments/assets/1c4f7a0d-9819-41d0-a36e-6b9cbe85588d" />
 <img width="1920" height="1080" alt="Admin Orders" src="https://github.com/user-attachments/assets/acb743fe-c965-4a97-88ff-9c8cf1d5665f" />
@@ -278,10 +262,10 @@ User ──< Cart  ──< CartItem  >── Product
 
 Use the following credentials to explore the Admin Dashboard:
 
-| Field    | Value              |
-| -------- | ------------------ |
-| Email    | iamAdmin@gmail.com |
-| Password | 123456             |
+| Field | Value |
+|-------|-------|
+| Email | iamAdmin@gmail.com |
+| Password | 123456 |
 
 > ⚠️ Demo-only account for portfolio showcase. Do not use these credentials in production environments.
 
