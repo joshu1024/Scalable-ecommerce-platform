@@ -1,11 +1,12 @@
-# 👟 SneakerZone — Full-Stack E-Commerce App
+# 👟 SneakerZone — Full-Stack E-Commerce App + AI Features
 
-A production-ready full-stack ecommerce platform built with React, Redux Toolkit, Node.js, Express, PostgreSQL, and Prisma. Features JWT authentication, PayPal payments, Cloudinary image uploads, and a full Admin Dashboard.
+A production-ready full-stack ecommerce platform built with React, Redux Toolkit, Node.js, Express, PostgreSQL, and Prisma. Features JWT authentication, PayPal payments, Cloudinary image uploads, a full Admin Dashboard, and an AI-powered shopping assistant built with Groq and Llama 3.1.
 
 ![React](https://img.shields.io/badge/Frontend-React-blue)
 ![Node](https://img.shields.io/badge/Backend-Node.js-green)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
 ![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748)
+![Groq](https://img.shields.io/badge/AI-Groq%20%2F%20Llama%203.1-orange)
 ![License](https://img.shields.io/github/license/joshu1024/mern-ecommerce)
 
 ---
@@ -26,12 +27,36 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 - 💳 PayPal Sandbox Payment Integration
 - 📦 Order History & Tracking
 - 👤 User Profile Management
+- 🤖 AI Shopping Assistant — ask questions about products in natural language
 
 ### 🧑‍💼 Admin Dashboard
 - 📦 **Product Management** — Add, Edit, Delete products with Cloudinary image uploads
+- 🤖 **AI Description Generator** — Generate product titles, descriptions, bullet points and SEO tags from product data using Groq/Llama 3.1
 - 👥 **User Management** — View all users, toggle roles, delete accounts
 - 🧾 **Order Management** — View all orders, update order status
 - 📊 **Analytics** — Revenue charts, order trends, stats overview powered by Recharts
+
+---
+
+## 🤖 AI Features (Phase 1 — In Progress)
+
+This project is being progressively upgraded with AI capabilities as part of a fullstack AI engineer learning roadmap.
+
+### ✅ Completed
+| Feature | Description | Tech |
+|---------|-------------|------|
+| AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
+| AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
+
+### 🔜 Coming Soon
+| Feature | Description |
+|---------|-------------|
+| Streaming Chat Widget | Word-by-word streaming response in the storefront with stop functionality |
+| Natural Language Product Search | AI queries real product database using function calling / tool use |
+| Per-user Token Quota | Track AI usage per user per month in Prisma |
+| AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
+| Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
+| Document Q&A | Upload policy docs, query them in natural language (RAG) |
 
 ---
 
@@ -58,6 +83,8 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 | PayPal REST API | Payment processing |
 | Cloudinary + Multer | Image storage and uploads |
 | express-rate-limit | Brute force protection |
+| Groq SDK | AI inference — Llama 3.1 8B Instant |
+| Zod | AI output schema validation |
 
 ---
 
@@ -70,6 +97,64 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 - **CORS protection** — Only whitelisted origins can make requests
 - **Environment variables** — All secrets stored in .env, never committed to source control
 - **Prisma Role enum** — User roles enforced at database schema level
+- **AI route protection** — All AI endpoints sit behind existing auth middleware
+- **Input validation** — All AI inputs validated with Zod before reaching the model
+
+---
+
+## 🤖 AI Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/chat/prompt` | Shopping assistant with conversation history and few-shot prompting | Public |
+| POST | `/api/chat/generate-description` | Generate structured product description from product fields | Admin only |
+
+### Example — Chat Endpoint
+
+**Request:**
+```json
+POST /api/chat/prompt
+{
+  "messages": [
+    { "role": "user", "content": "do you have waterproof jackets?" }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "Yes! We carry several waterproof jacket styles. Could you share your budget or preferred brand? That'll help me point you to the best options."
+}
+```
+
+### Example — Product Description Generator
+
+**Request:**
+```json
+POST /api/chat/generate-description
+{
+  "name": "Nike Air Max 90",
+  "category": "Sneakers",
+  "brand": "Nike",
+  "oldPrice": 150,
+  "newPrice": 120
+}
+```
+
+**Response:**
+```json
+{
+  "title": "Nike Air Max 90 — Iconic Comfort Sneakers",
+  "description": "The Nike Air Max 90 delivers legendary cushioning and timeless style...",
+  "bulletPoints": [
+    "Visible Air-Sole unit for maximum cushioning",
+    "Durable leather and mesh upper",
+    "Classic silhouette with modern comfort"
+  ],
+  "seoTags": ["Nike Air Max 90", "Men's Sneakers", "Comfortable Running Shoes"]
+}
+```
 
 ---
 
@@ -92,7 +177,7 @@ mern-ecommerce/
 │
 ├── server/                     # Express + PostgreSQL backend
 │   ├── config/                 # Prisma client, Cloudinary config, env
-│   ├── controllers/            # Route controllers (user, product, cart, order, admin)
+│   ├── controllers/            # Route controllers (user, product, cart, order, admin, prompt)
 │   ├── middleware/             # authMiddleware, adminMiddleware
 │   ├── prisma/                 # schema.prisma + migrations
 │   ├── routes/                 # Express route definitions
@@ -138,6 +223,7 @@ CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 PAYPAL_CLIENT_ID=your_paypal_client_id
 PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+GROQ_API_KEY=your_groq_api_key
 ```
 
 Create a `.env` file inside the `client/` directory:
@@ -146,6 +232,8 @@ Create a `.env` file inside the `client/` directory:
 VITE_API_BASE_URL=http://localhost:4000
 VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
+
+Get a free Groq API key at [console.groq.com](https://console.groq.com)
 
 ### 4. Set Up the Database
 ```bash
@@ -177,29 +265,12 @@ App runs on: **http://localhost:5173**
 3. Set Root Directory → `server`
 4. Build Command: `npm install && npx prisma generate`
 5. Start Command: `npm start`
-6. Add environment variables:
-
-```env
-DATABASE_URL=your_render_postgres_url
-JWT_SECRET=your_secret
-NODE_ENV=production
-ALLOWED_ORIGINS=https://your-frontend.vercel.app
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-PAYPAL_CLIENT_ID=...
-PAYPAL_CLIENT_SECRET=...
-```
+6. Add environment variables including `GROQ_API_KEY`
 
 ### Frontend on Vercel
 1. Go to [Vercel.com](https://vercel.com) → Import GitHub repo
 2. Set Root Directory → `client`
-3. Add environment variables:
-
-```env
-VITE_API_BASE_URL=https://your-backend.onrender.com
-VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
-```
+3. Add environment variables
 
 ### Run Production Database Migrations
 ```bash
@@ -243,7 +314,6 @@ User ──< Cart  ──< CartItem  >── Product
 <img width="1920" height="1080" alt="Checkout" src="https://github.com/user-attachments/assets/3efdc162-5dfb-410b-8c50-3b30a63e04f0" />
 <img width="1920" height="1080" alt="PayPal" src="https://github.com/user-attachments/assets/ea11f694-9e96-4e48-8dc5-0fd1de661eba" />
 <img width="1920" height="1080" alt="Order Summary" src="https://github.com/user-attachments/assets/33fd0c5c-0d17-4a2f-89eb-d9c636808c4c" />
-<img width="1920" height="1080" alt="Checkout 2" src="https://github.com/user-attachments/assets/f3b7a543-caa8-4075-98c2-007db948ff35" />
 
 ### 🔐 Authentication
 <img width="1920" height="1080" alt="Login" src="https://github.com/user-attachments/assets/62a3d7b7-7f30-4cbc-af02-d1978ccd48fb" />
@@ -271,6 +341,17 @@ Use the following credentials to explore the Admin Dashboard:
 
 ---
 
+## 🗺️ AI Roadmap
+
+This project is being progressively upgraded as part of a fullstack AI engineer learning roadmap:
+
+- ✅ **Phase 1** — AI integration fundamentals (Groq API, prompt engineering, streaming, function calling)
+- 🔜 **Phase 2** — RAG & embeddings (pgvector semantic search, document Q&A)
+- 🔜 **Phase 3** — Agents (autonomous shopping agent with LangGraph/Mastra)
+- 🔜 **Phase 4** — Production AI (LangSmith tracing, evals, cost optimisation)
+
+---
+
 ## 🧑‍💻 Author
 
 **Joshua Kipamet Olting'idi**
@@ -289,6 +370,8 @@ Use the following credentials to explore the Admin Dashboard:
 - Cloudinary
 - Vite + React Ecosystem
 - Render & Vercel
+- Groq — free LLM inference API
+- Meta — Llama 3.1 open source model
 
 ---
 
