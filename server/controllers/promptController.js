@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { Stream } from "groq-sdk/core/streaming.mjs";
 import { title } from "node:process";
 import { z } from "zod";
 
@@ -9,7 +10,7 @@ const DescriptionSchema = z.object({
   bulletPoints: z.array(z.string()),
   seoTags: z.array(z.string()),
 });
-const SYSTEM_PROMPT = `You are a helpful shopping assistant for an ecommerce store.
+const SYSTEM_PROMPT = `You are a helpful shopping assistant for an ecommerce store tah sells sneakers.
     You help customers find products, check availability, and answer questions about orders.
     Always be concise, friendly, and specific.
     Never make up product details, prices, or stock levels.
@@ -81,6 +82,44 @@ export const promptMessage = async (req, res) => {
   });
 
   res.json({ reply: response.choices[0].message.content });
+};
+export const streamChat = async (req, res) => {
+  console.log("streamChat hit");
+  console.log("body:", req.body);
+  try {
+    const { messages } = req.body;
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); // ← add this
+    res.flushHeaders();
+    const stream = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      temperature: 0.7,
+      stream: true,
+      max_tokens: 500,
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        ...FEW_SHOT_EXAMPLES,
+        ...messages,
+      ],
+    });
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content || "";
+      console.log("TOKEN:", JSON.stringify(token));
+      if (token) {
+        res.write(`data:${JSON.stringify({ token })}\n\n`);
+      }
+    }
+    res.write("data:[DONE]\n\n");
+    res.end();
+  } catch (error) {
+    console.log("stream chat error", error);
+    res.write(`data:${JSON.stringify({ error: "stream failed" })}`);
+  }
 };
 export const generateProductDescription = async (req, res) => {
   try {

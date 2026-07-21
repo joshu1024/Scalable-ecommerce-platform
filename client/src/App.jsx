@@ -28,6 +28,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 
 import { useSelector } from "react-redux";
+import ChatWidget from "./components/ChatWidget.jsx";
 
 function App() {
   const location = useLocation();
@@ -49,6 +50,7 @@ function App() {
   return (
     <>
       {!hideLayout && !location.pathname.startsWith("/admin") && <NavBar />}
+      {!hideLayout && !location.pathname.startsWith("/admin") && <ChatWidget />}
 
       <Routes>
         {/* Public Routes */}

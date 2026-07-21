@@ -65,6 +65,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/paypal", paypalRoutes);
 app.use("/api/admin", adminRoutes);
+app.options("/api/chat/stream", cors());
 app.use("/api/chat", promptRoutes);
 
 /* ---------- Static Uploads ---------- */
