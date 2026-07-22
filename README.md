@@ -47,11 +47,11 @@ This project is being progressively upgraded with AI capabilities as part of a f
 |---------|-------------|------|
 | AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
 | AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
+| Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
 
 ### 🔜 Coming Soon
 | Feature | Description |
 |---------|-------------|
-| Streaming Chat Widget | Word-by-word streaming response in the storefront with stop functionality |
 | Natural Language Product Search | AI queries real product database using function calling / tool use |
 | Per-user Token Quota | Track AI usage per user per month in Prisma |
 | AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
@@ -85,6 +85,7 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | express-rate-limit | Brute force protection |
 | Groq SDK | AI inference — Llama 3.1 8B Instant |
 | Zod | AI output schema validation |
+| Server-sent Events (SSE) | Real-time token streaming from backend to React frontend |
 
 ---
 
@@ -107,6 +108,7 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
 | POST | `/api/chat/prompt` | Shopping assistant with conversation history and few-shot prompting | Public |
+| POST | `/api/chat/stream` | Same assistant with word-by-word SSE streaming — used by the chat widget | Public |
 | POST | `/api/chat/generate-description` | Generate structured product description from product fields | Admin only |
 
 ### Example — Chat Endpoint
@@ -127,6 +129,31 @@ POST /api/chat/prompt
   "reply": "Yes! We carry several waterproof jacket styles. Could you share your budget or preferred brand? That'll help me point you to the best options."
 }
 ```
+
+### Example — Streaming Chat Endpoint
+
+**Request:**
+```json
+POST /api/chat/stream
+{
+  "messages": [
+    { "role": "user", "content": "do you have Nike shoes?" }
+  ]
+}
+```
+
+**Response (SSE stream):**
+```
+data:{"token":"Yes"}
+data:{"token":","}
+data:{"token":" we"}
+data:{"token":" carry"}
+data:{"token":" Nike"}
+data:{"token":" shoes"}
+data:[DONE]
+```
+
+---
 
 ### Example — Product Description Generator
 
