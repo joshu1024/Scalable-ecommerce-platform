@@ -19,7 +19,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "mern-ecommerce",
-    allowed_formats: ["jpg", "jpeg", "png"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "avif"],
   },
 });
 
@@ -31,7 +31,6 @@ router.get("/search", searchProducts);
 router.get("/:id", getProductById);
 router.put("/:id", upload.array("images", 5), updateProduct);
 
-// Prisma-based category filter
 router.get("/category/:category", async (req, res) => {
   try {
     const category = req.params.category;
@@ -46,7 +45,6 @@ router.get("/category/:category", async (req, res) => {
   }
 });
 
-// Prisma-based brand filter
 router.get("/brand/:brand", async (req, res) => {
   try {
     const brand = req.params.brand;

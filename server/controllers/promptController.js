@@ -1,7 +1,8 @@
+import { toolName } from "@anthropic-ai/sdk/lib/tools/BetaRunnableTool.js";
 import Groq from "groq-sdk";
 import { Stream } from "groq-sdk/core/streaming.mjs";
-import { title } from "node:process";
 import { z } from "zod";
+import prisma from "../config/prisma.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DescriptionSchema = z.object({
@@ -10,60 +11,119 @@ const DescriptionSchema = z.object({
   bulletPoints: z.array(z.string()),
   seoTags: z.array(z.string()),
 });
-const SYSTEM_PROMPT = `You are a helpful shopping assistant for an ecommerce store tah sells sneakers.
-    You help customers find products, check availability, and answer questions about orders.
-    Always be concise, friendly, and specific.
-    Never make up product details, prices, or stock levels.
-    If you cannot find what the customer needs, say so honestly and suggest alternatives.`;
+const SYSTEM_PROMPT =
+  "You are a helpful shopping assistant for SneakerZone, an online sneaker store. You help customers find products, check availability, and answer questions about orders. Always be concise, friendly, and specific. Never make up product details, prices, or stock levels. If you cannot find what the customer needs, say so honestly. The store carries these brands: Nike, Adidas, Puma. Categories are: Men, Women, Kids. All prices are in dollars.";
 
 const FEW_SHOT_EXAMPLES = [
   {
     role: "user",
-    content: "do you have any running shoes?",
+    content: "do you have any Nike shoes?",
   },
   {
     role: "assistant",
     content:
-      "Yes! We carry running shoes from brands like Nike, Adidas, and Puma. Could you tell me your budget or any preferred features like cushioning or waterproofing? That'll help me narrow it down for you.",
+      "Yes! We carry several Nike styles including Air Max, Pegasus, Dunk Low, and more across Men, Women, and Kids categories. What are you looking for?",
   },
   {
     role: "user",
-    content: "what is your return policy?",
+    content: "what brands do you carry?",
   },
   {
     role: "assistant",
     content:
-      "We accept returns within 30 days of purchase, provided the item is unused and in its original packaging. Would you like help with a specific order?",
+      "We carry three brands — Nike, Adidas, and Puma — across Men, Women, and Kids categories. Would you like me to search for something specific?",
   },
   {
     role: "user",
-    content: "do you have this in size 12?",
+    content: "show me women's shoes under $70",
   },
   {
     role: "assistant",
-    content:
-      "Let me check that for you — which product are you referring to? Once I know the item I can check stock in size 12.",
-  },
-  {
-    role: "user",
-    content: "what are your cheapest jackets?",
-  },
-  {
-    role: "assistant",
-    content:
-      "Our most affordable jackets start around $40. We have options in denim, windbreaker, and fleece styles. Do you have a maximum budget in mind or a preferred style?",
-  },
-  {
-    role: "user",
-    content: "is this item in stock?",
-  },
-  {
-    role: "assistant",
-    content:
-      "I'd be happy to check that for you. Could you tell me the name or category of the item you're looking for?",
+    content: "Let me search our women's collection under $70 for you.",
   },
 ];
-
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "searchProducts",
+      description:
+        "Search products by name, category, brand, or price range. Use this when the user asks about products, availability, or wants recommendations.",
+      parameters: {
+        type: "object",
+        properties: {
+          category: {
+            type: "string",
+            description: "Product category e.g. Sneakers, Boots, Sandals",
+            nullable: true,
+          },
+          brand: {
+            type: "string",
+            description: "Product brand e.g. Nike, Adidas, Puma",
+            nullable: true,
+          },
+          maxPrice: {
+            type: "number",
+            description: "Maximum price in dollars (newPrice field)",
+            nullable: true,
+          },
+          minPrice: {
+            type: "number",
+            description: "Minimum price in dollars (newPrice field)",
+            nullable: true,
+          },
+          nameContains: {
+            type: "string",
+            description: "Keyword to search in product name",
+            nullable: true,
+          },
+          inStockOnly: {
+            type: "boolean",
+            description:
+              "If true, only return products with stock greater than 0. Only use this if the user specifically asks about stock availability.",
+            nullable: true,
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "getProductById",
+      description:
+        "Get full details of a single product by its ID. Use this when the user asks about a specific product.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: "The product ID",
+          },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "getOrderStatus",
+      description:
+        "Get order status and items for the logged-in user by order ID.",
+      parameters: {
+        type: "object",
+        properties: {
+          orderId: {
+            type: "string",
+            description: "The order ID to look up",
+          },
+        },
+        required: ["orderId"],
+      },
+    },
+  },
+];
 export const promptMessage = async (req, res) => {
   const { message } = req.body;
 
@@ -84,8 +144,6 @@ export const promptMessage = async (req, res) => {
   res.json({ reply: response.choices[0].message.content });
 };
 export const streamChat = async (req, res) => {
-  console.log("streamChat hit");
-  console.log("body:", req.body);
   try {
     const { messages } = req.body;
     res.setHeader("Content-Type", "text/event-stream");
@@ -223,5 +281,120 @@ export const generateProductDescription = async (req, res) => {
       return res.status(500).json({ error: "AI returned invalid JSON" });
     }
     res.status(500).json({ error: "Failed to generate description" });
+  }
+};
+
+export const executeTool = async (toolName, args, userId) => {
+  if (toolName === "searchProducts") {
+    console.log("Running searchProducts with args:", args);
+    const products = await prisma.product.findMany({
+      where: {
+        ...(args.category && {
+          category: { contains: args.category, mode: "insensitive" },
+        }),
+        ...(args.brand && {
+          brand: { contains: args.brand, mode: "insensitive" },
+        }),
+        ...(args.nameContains && {
+          name: { contains: args.nameContains, mode: "insensitive" },
+        }),
+        ...(args.inStockOnly === true && { stock: { gt: 0 } }),
+        ...((args.minPrice || args.maxPrice) && {
+          newPrice: {
+            ...(args.maxPrice && { lte: args.maxPrice }),
+            ...(args.minPrice && { lte: args.minPrice }),
+          },
+        }),
+      },
+      take: 5,
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        brand: true,
+        newPrice: true,
+        oldPrice: true,
+        stock: true,
+        images: true,
+      },
+    });
+    return products;
+  }
+  if (toolName === "getProductById") {
+    const product = await prisma.product.findUnique({
+      where: { id: args.id },
+    });
+    return product;
+  }
+  if (toolName === "getOrderStatus") {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: args.orderId,
+        userId, // scoped to logged-in user — AI can never access another user's order
+      },
+      include: { items: true },
+    });
+    return order;
+  }
+
+  return { error: "Unknown tool" };
+};
+export const chatWithTools = async (req, res) => {
+  try {
+    const { messages } = req.body;
+    const userId = req.user?.id || null;
+
+    const firstResponse = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      temperature: 0.7,
+      max_tokens: 1024,
+      tool_choice: "auto",
+      tools,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...FEW_SHOT_EXAMPLES,
+        ...messages,
+      ],
+    });
+
+    const firstMessage = firstResponse.choices[0].message;
+    console.log("firstMessage:", JSON.stringify(firstMessage, null, 2));
+    console.log("tool_calls:", firstMessage.tool_calls);
+    if (firstMessage.tool_calls && firstMessage.tool_calls.length > 0) {
+      const toolCall = firstMessage.tool_calls[0];
+      const toolName = toolCall.function.name;
+      const toolArgs = JSON.parse(toolCall.function.arguments);
+      console.log("About to execute tool:", toolName, toolArgs);
+      const toolResult = await executeTool(toolName, toolArgs, userId);
+      console.log("toolResult:", JSON.stringify(toolResult, null, 2));
+      console.log("toolResult length:", toolResult?.length);
+      const secondResponse = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
+        max_tokens: 1024,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...FEW_SHOT_EXAMPLES,
+          ...messages,
+          firstMessage,
+          {
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(toolResult),
+          },
+        ],
+      });
+      return res.json({
+        reply: secondResponse.choices[0].message.content,
+        toolUsed: toolName,
+        toolArgs,
+      });
+    }
+    res.json({ reply: firstMessage.content });
+  } catch (error) {
+    console.error("chatWithTools error:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to get a response. Please try again." });
   }
 };

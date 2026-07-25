@@ -2,13 +2,16 @@ import prisma from "../config/prisma.js";
 
 // ✅ Add product (Cloudinary-ready)
 export const addProduct = async (req, res) => {
+  console.log("🔥 HIT addProduct controller");
+  console.log("req.body:", req.body);
+  console.log("req.files:", req.files);
   try {
     const { name, oldPrice, newPrice, brand, category, stock } = req.body;
 
     if (!name || !brand || !category || !newPrice) {
       return res.status(400).json({ message: "Missing required fields" });
     }
-    // req.files[].path are already Cloudinary URLs
+
     const images = req.files ? req.files.map((file) => file.path) : [];
 
     const product = await prisma.product.create({
@@ -24,8 +27,11 @@ export const addProduct = async (req, res) => {
     });
     res.status(201).json(product);
   } catch (error) {
-    console.error("❌ Add product error:", error);
-    res.status(500).json({ message: "Failed to add product" });
+    console.log("🔥 CAUGHT ERROR:", error);
+    console.log("🔥 ERROR STRING:", String(error));
+    res
+      .status(500)
+      .json({ message: "Failed to add product", detail: String(error) });
   }
 };
 

@@ -83,7 +83,14 @@ app.use((req, res) => {
   console.log("❌ No route matched:", req.originalUrl);
   res.status(404).json({ message: "Route not found" });
 });
-
+app.use((err, req, res, next) => {
+  console.error("🔥 GLOBAL ERROR HANDLER CAUGHT:");
+  console.error("Message:", err.message);
+  console.error("Stack:", err.stack);
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || "Server error" });
+});
 /* ---------- Start Server ---------- */
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
