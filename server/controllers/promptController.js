@@ -146,11 +146,64 @@ export const promptMessage = async (req, res) => {
 export const streamChat = async (req, res) => {
   try {
     const { messages } = req.body;
+    const userId = req.user?.id || null;
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); // ← add this
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
     res.flushHeaders();
+
+    const firstResponse = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      temperature: 0.7,
+      max_tokens: 1024,
+      tools,
+      tool_choice: "auto",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...FEW_SHOT_EXAMPLES,
+        ...messages,
+      ],
+    });
+
+    const firstMessage = firstResponse.choices[0].message;
+
+    if (firstMessage.tool_calls && firstMessage.tool_calls.length > 0) {
+      const toolCall = firstMessage.tool_calls[0];
+      const toolName = toolCall.function.name;
+      const toolArgs = JSON.parse(toolCall.function.arguments);
+
+      const toolResult = await executeTool(toolName, toolArgs, userId);
+
+      const stream = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
+        max_tokens: 1024,
+        stream: true,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...FEW_SHOT_EXAMPLES,
+          ...messages,
+          firstMessage,
+          {
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(toolResult),
+          },
+        ],
+      });
+
+      for await (const chunk of stream) {
+        const token = chunk.choices[0]?.delta?.content || "";
+        if (token) {
+          res.write(`data:${JSON.stringify({ token })}\n\n`);
+        }
+      }
+
+      res.write("data:[DONE]\n\n");
+      res.end();
+      return;
+    }
     const stream = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       temperature: 0.7,
@@ -167,7 +220,6 @@ export const streamChat = async (req, res) => {
     });
     for await (const chunk of stream) {
       const token = chunk.choices[0]?.delta?.content || "";
-      console.log("TOKEN:", JSON.stringify(token));
       if (token) {
         res.write(`data:${JSON.stringify({ token })}\n\n`);
       }
@@ -286,7 +338,6 @@ export const generateProductDescription = async (req, res) => {
 
 export const executeTool = async (toolName, args, userId) => {
   if (toolName === "searchProducts") {
-    console.log("Running searchProducts with args:", args);
     const products = await prisma.product.findMany({
       where: {
         ...(args.category && {
@@ -358,16 +409,13 @@ export const chatWithTools = async (req, res) => {
     });
 
     const firstMessage = firstResponse.choices[0].message;
-    console.log("firstMessage:", JSON.stringify(firstMessage, null, 2));
-    console.log("tool_calls:", firstMessage.tool_calls);
     if (firstMessage.tool_calls && firstMessage.tool_calls.length > 0) {
       const toolCall = firstMessage.tool_calls[0];
       const toolName = toolCall.function.name;
       const toolArgs = JSON.parse(toolCall.function.arguments);
-      console.log("About to execute tool:", toolName, toolArgs);
+
       const toolResult = await executeTool(toolName, toolArgs, userId);
-      console.log("toolResult:", JSON.stringify(toolResult, null, 2));
-      console.log("toolResult length:", toolResult?.length);
+
       const secondResponse = await groq.chat.completions.create({
         model: "llama-3.1-8b-instant",
         temperature: 0.7,
