@@ -48,7 +48,7 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
 | AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
 | Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
-| Natural Language Product Search | AI queries real product database using function calling / tool use |
+| Natural Language Product Search | AI queries real product database using function calling / tool use | Groq / Llama 3.1 + SSE |
 
 ### 🔜 Coming Soon
 | Feature | Description |
