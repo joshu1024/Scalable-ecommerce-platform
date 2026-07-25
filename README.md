@@ -48,11 +48,11 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
 | AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
 | Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
+| Natural Language Product Search | AI queries real product database using function calling / tool use |
 
 ### 🔜 Coming Soon
 | Feature | Description |
 |---------|-------------|
-| Natural Language Product Search | AI queries real product database using function calling / tool use |
 | Per-user Token Quota | Track AI usage per user per month in Prisma |
 | AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
 | Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
