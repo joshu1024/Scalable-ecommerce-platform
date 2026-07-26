@@ -147,13 +147,19 @@ export const streamChat = async (req, res) => {
   try {
     const { messages } = req.body;
     const userId = req.user?.id || null;
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
+      "http://localhost:5173",
+    ];
+    const origin = req.headers.origin;
+
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.ALLOWED_ORIGINS?.split(",")[0] || "http://localhost:5173",
-    );
+
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+
     res.flushHeaders();
 
     const firstResponse = await groq.chat.completions.create({
