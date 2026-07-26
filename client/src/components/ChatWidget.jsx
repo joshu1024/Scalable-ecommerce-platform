@@ -19,37 +19,38 @@ export default function ChatWidget() {
     abortRef.current = controller;
 
     try {
-      const response = await fetch("http://localhost:4000/api/chat/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages }),
-        signal: controller.signal,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat/stream`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: newMessages }),
+          signal: controller.signal,
+        },
+      );
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        // accumulate chunks in buffer
-        buffer += decoder.decode(value, { stream: true });
+        const text = decoder.decode(value, { stream: true });
+        const lines = text.split("\n");
 
-        // split on double newlines — each SSE event ends with \n\n
-        const parts = buffer.split("\n\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (
+            !trimmed ||
+            trimmed === "data:[DONE]" ||
+            trimmed === "data: [DONE]"
+          )
+            continue;
 
-        // last part may be incomplete — keep it in the buffer
-        buffer = parts.pop();
-
-        for (const part of parts) {
-          const line = part.trim();
-
-          if (!line || line === "data:[DONE]") continue;
-
-          // handle both "data: {...}" and "{...}" formats
-          const jsonStr = line.startsWith("data:") ? line.slice(5) : line;
+          const jsonStr = trimmed.startsWith("data:")
+            ? trimmed.slice(5)
+            : trimmed;
 
           try {
             const parsed = JSON.parse(jsonStr);
@@ -84,24 +85,10 @@ export default function ChatWidget() {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 20,
-        right: 20,
-        width: 350,
-        border: "1px solid #e5e7eb",
-        borderRadius: 12,
-        background: "#fff",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        display: "flex",
-        flexDirection: "column",
-        maxHeight: 500,
-        zIndex: 9999,
-      }}
-    >
+    <div className="fixed bottom-5 right-5 z-[9999] flex max-h-[500px] w-[350px] flex-col rounded-xl border border-gray-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
       {/* Header */}
       <div
+        className="rounded-t-xl bg-indigo-600 px-4 py-3 text-sm font-medium text-white"
         style={{
           padding: "12px 16px",
           borderBottom: "1px solid #e5e7eb",
@@ -116,35 +103,21 @@ export default function ChatWidget() {
       </div>
 
       {/* Messages */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: 16,
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-          minHeight: 300,
-        }}
-      >
+      <div className="flex min-h-[300px] flex-1 flex-col gap-2.5 overflow-y-auto p-4">
         {messages.length === 0 && (
           <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center" }}>
             Ask me anything about our products
           </p>
         )}
+
         {messages.map((msg, i) => (
           <div
+            className={`max-w-[85%] rounded-[10px] px-3 py-2 text-[13px] leading-[1.5] ${
+              msg.role === "user"
+                ? "self-end bg-indigo-600 text-white"
+                : "self-start bg-gray-100 text-gray-900"
+            }`}
             key={i}
-            style={{
-              alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-              background: msg.role === "user" ? "#4f46e5" : "#f3f4f6",
-              color: msg.role === "user" ? "#fff" : "#111",
-              padding: "8px 12px",
-              borderRadius: 10,
-              fontSize: 13,
-              maxWidth: "85%",
-              lineHeight: 1.5,
-            }}
           >
             {msg.content}
             {msg.role === "assistant" &&
@@ -157,29 +130,16 @@ export default function ChatWidget() {
       </div>
 
       {/* Input */}
-      <div
-        style={{
-          padding: "10px 12px",
-          borderTop: "1px solid #e5e7eb",
-          display: "flex",
-          gap: 8,
-        }}
-      >
+      <div className="flex gap-2 border-t border-gray-200 p-3">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Ask about products..."
           disabled={streaming}
-          style={{
-            flex: 1,
-            padding: "8px 12px",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            fontSize: 13,
-            outline: "none",
-            opacity: streaming ? 0.6 : 1,
-          }}
+          className={`flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${
+            streaming ? "opacity-60" : "opacity-100"
+          }`}
         />
         {streaming ? (
           <button
@@ -199,15 +159,7 @@ export default function ChatWidget() {
         ) : (
           <button
             onClick={sendMessage}
-            style={{
-              padding: "8px 12px",
-              background: "#4f46e5",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontSize: 13,
-            }}
+            className="cursor-pointer rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white transition hover:bg-indigo-700"
           >
             Send
           </button>
