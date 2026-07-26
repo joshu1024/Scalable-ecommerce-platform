@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "aiTokensMonth" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "aiTokensUsed" INTEGER NOT NULL DEFAULT 0;
