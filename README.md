@@ -7,14 +7,121 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
 ![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748)
 ![Groq](https://img.shields.io/badge/AI-Groq%20%2F%20Llama%203.1-orange)
-![License](https://img.shields.io/github/license/joshu1024/mern-ecommerce)
+![License](https://img.shields.io/github/license/joshu1024/sneakerzone)
 
 ---
 
 ## 🌐 Live Demo
 
-- 🛍️ **Frontend (Vercel)** → [mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app](https://mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app/)
-- ⚙️ **Backend (Render)** → [mern-ecommerce-4ahr.onrender.com](https://mern-ecommerce-4ahr.onrender.com/)
+- 🛍️ **Frontend (Vercel)** → [sneakerzone.vercel.app](https://mern-ecommerce-26w1-git-main-joes-projects-50075601.vercel.app/) <!-- update once repo/domain is renamed -->
+- ⚙️ **Backend (Render)** → [sneakerzone-api.onrender.com](https://mern-ecommerce-4ahr.onrender.com/) <!-- update once repo/domain is renamed -->
+
+---
+
+## 🤖 AI Features
+
+This project is being progressively upgraded with AI capabilities as part of a fullstack AI engineer learning roadmap — this is the differentiator, so it's worth reading first.
+
+### ✅ Completed
+| Feature | Description | Tech |
+|---------|-------------|------|
+| AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
+| AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
+| Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
+| Natural Language Product Search | AI detects product queries, searches real PostgreSQL database via Prisma, and streams results word by word | Groq / Llama 3.1 + Tool use + SSE |
+
+### 🔜 Coming Soon
+| Feature | Description |
+|---------|-------------|
+| Per-user Token Quota | Track AI usage per user per month in Prisma |
+| AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
+| Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
+| Document Q&A | Upload policy docs, query them in natural language (RAG) |
+
+### AI Roadmap
+
+- ✅ **Phase 1** — AI integration fundamentals (Groq API, prompt engineering, streaming, function calling)
+- 🔜 **Phase 2** — RAG & embeddings (pgvector semantic search, document Q&A)
+- 🔜 **Phase 3** — Agents (autonomous shopping agent with LangGraph/Mastra)
+- 🔜 **Phase 4** — Production AI (LangSmith tracing, evals, cost optimisation)
+
+### AI Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/chat/prompt` | Shopping assistant with conversation history and few-shot prompting | Public |
+| POST | `/api/chat/stream` | Same assistant with word-by-word SSE streaming — used by the chat widget | Public |
+| POST | `/api/chat/generate-description` | Generate structured product description from product fields | Admin only |
+
+#### Example — Chat Endpoint
+
+**Request:**
+```json
+POST /api/chat/prompt
+{
+  "messages": [
+    { "role": "user", "content": "do you have waterproof jackets?" }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "Yes! We carry several waterproof jacket styles. Could you share your budget or preferred brand? That'll help me point you to the best options."
+}
+```
+
+#### Example — Streaming Chat Endpoint
+
+**Request:**
+```json
+POST /api/chat/stream
+{
+  "messages": [
+    { "role": "user", "content": "do you have Nike shoes?" }
+  ]
+}
+```
+
+**Response (SSE stream):**
+```
+data:{"token":"Yes"}
+data:{"token":","}
+data:{"token":" we"}
+data:{"token":" carry"}
+data:{"token":" Nike"}
+data:{"token":" shoes"}
+data:[DONE]
+```
+
+#### Example — Product Description Generator
+
+**Request:**
+```json
+POST /api/chat/generate-description
+{
+  "name": "Nike Air Max 90",
+  "category": "Sneakers",
+  "brand": "Nike",
+  "oldPrice": 150,
+  "newPrice": 120
+}
+```
+
+**Response:**
+```json
+{
+  "title": "Nike Air Max 90 — Iconic Comfort Sneakers",
+  "description": "The Nike Air Max 90 delivers legendary cushioning and timeless style...",
+  "bulletPoints": [
+    "Visible Air-Sole unit for maximum cushioning",
+    "Durable leather and mesh upper",
+    "Classic silhouette with modern comfort"
+  ],
+  "seoTags": ["Nike Air Max 90", "Men's Sneakers", "Comfortable Running Shoes"]
+}
+```
 
 ---
 
@@ -35,28 +142,6 @@ A production-ready full-stack ecommerce platform built with React, Redux Toolkit
 - 👥 **User Management** — View all users, toggle roles, delete accounts
 - 🧾 **Order Management** — View all orders, update order status
 - 📊 **Analytics** — Revenue charts, order trends, stats overview powered by Recharts
-
----
-
-## 🤖 AI Features (Phase 1 — In Progress)
-
-This project is being progressively upgraded with AI capabilities as part of a fullstack AI engineer learning roadmap.
-
-### ✅ Completed
-| Feature | Description | Tech |
-|---------|-------------|------|
-| AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
-| AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
-| Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
-| Natural Language Product Search | AI queries real product database using function calling / tool use | Groq / Llama 3.1 + SSE |
-
-### 🔜 Coming Soon
-| Feature | Description |
-|---------|-------------|
-| Per-user Token Quota | Track AI usage per user per month in Prisma |
-| AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
-| Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
-| Document Q&A | Upload policy docs, query them in natural language (RAG) |
 
 ---
 
@@ -103,92 +188,10 @@ This project is being progressively upgraded with AI capabilities as part of a f
 
 ---
 
-## 🤖 AI Endpoints
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/chat/prompt` | Shopping assistant with conversation history and few-shot prompting | Public |
-| POST | `/api/chat/stream` | Same assistant with word-by-word SSE streaming — used by the chat widget | Public |
-| POST | `/api/chat/generate-description` | Generate structured product description from product fields | Admin only |
-
-### Example — Chat Endpoint
-
-**Request:**
-```json
-POST /api/chat/prompt
-{
-  "messages": [
-    { "role": "user", "content": "do you have waterproof jackets?" }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "reply": "Yes! We carry several waterproof jacket styles. Could you share your budget or preferred brand? That'll help me point you to the best options."
-}
-```
-
-### Example — Streaming Chat Endpoint
-
-**Request:**
-```json
-POST /api/chat/stream
-{
-  "messages": [
-    { "role": "user", "content": "do you have Nike shoes?" }
-  ]
-}
-```
-
-**Response (SSE stream):**
-```
-data:{"token":"Yes"}
-data:{"token":","}
-data:{"token":" we"}
-data:{"token":" carry"}
-data:{"token":" Nike"}
-data:{"token":" shoes"}
-data:[DONE]
-```
-
----
-
-### Example — Product Description Generator
-
-**Request:**
-```json
-POST /api/chat/generate-description
-{
-  "name": "Nike Air Max 90",
-  "category": "Sneakers",
-  "brand": "Nike",
-  "oldPrice": 150,
-  "newPrice": 120
-}
-```
-
-**Response:**
-```json
-{
-  "title": "Nike Air Max 90 — Iconic Comfort Sneakers",
-  "description": "The Nike Air Max 90 delivers legendary cushioning and timeless style...",
-  "bulletPoints": [
-    "Visible Air-Sole unit for maximum cushioning",
-    "Durable leather and mesh upper",
-    "Classic silhouette with modern comfort"
-  ],
-  "seoTags": ["Nike Air Max 90", "Men's Sneakers", "Comfortable Running Shoes"]
-}
-```
-
----
-
 ## 📂 Folder Structure
 
 ```
-mern-ecommerce/
+sneakerzone/
 │
 ├── client/                     # React + Vite frontend
 │   ├── src/
@@ -220,8 +223,8 @@ mern-ecommerce/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/joshu1024/mern-ecommerce.git
-cd mern-ecommerce
+git clone https://github.com/joshu1024/sneakerzone.git
+cd sneakerzone
 ```
 
 ### 2. Install Dependencies
@@ -355,27 +358,11 @@ User ──< Cart  ──< CartItem  >── Product
 
 ---
 
-## 🧑‍💼 Demo Admin Login
+## 🧑‍💼 Demo Admin Access
 
-Use the following credentials to explore the Admin Dashboard:
+A live admin demo is available for portfolio review. **Please reach out via [LinkedIn](#) or [email](#)** and I'll share temporary credentials — this keeps the demo account from being spammed or abused by bots scraping public READMEs.
 
-| Field | Value |
-|-------|-------|
-| Email | iamAdmin@gmail.com |
-| Password | 123456 |
-
-> ⚠️ Demo-only account for portfolio showcase. Do not use these credentials in production environments.
-
----
-
-## 🗺️ AI Roadmap
-
-This project is being progressively upgraded as part of a fullstack AI engineer learning roadmap:
-
-- ✅ **Phase 1** — AI integration fundamentals (Groq API, prompt engineering, streaming, function calling)
-- 🔜 **Phase 2** — RAG & embeddings (pgvector semantic search, document Q&A)
-- 🔜 **Phase 3** — Agents (autonomous shopping agent with LangGraph/Mastra)
-- 🔜 **Phase 4** — Production AI (LangSmith tracing, evals, cost optimisation)
+> ⚠️ This is a demo-only account for portfolio showcase. Never publish real or reusable credentials in a public README.
 
 ---
 
@@ -383,8 +370,8 @@ This project is being progressively upgraded as part of a fullstack AI engineer 
 
 **Joshua Kipamet Olting'idi**
 
-- 💼 [LinkedIn](https://linkedin.com)
-- 🐦 [Twitter @JoeKipamet71036](https://twitter.com/JoeKipamet71036)
+- 💼 [LinkedIn](#) <!-- add your profile URL -->
+- 🐦 [Twitter](#) <!-- add your handle -->
 - 💻 [GitHub @joshu1024](https://github.com/joshu1024)
 
 ---
