@@ -29,14 +29,18 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
 | Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
 | Natural Language Product Search | AI detects product queries, searches real PostgreSQL database via Prisma, and streams results word by word | Groq / Llama 3.1 + Tool use + SSE |
+| AI Security Layer | Rate limiting per IP, prompt injection detection, output moderation, input sanitisation | express-rate-limit + custom middleware |
+| Per-user Token Quota | Tracks AI token usage per user per month in Prisma with automatic monthly reset | Prisma + PostgreSQL |
+| AI Usage Dashboard | Admin panel showing total calls, tokens used, estimated cost, and per-user breakdown | Prisma aggregation |
+| Retry + Error Handling | Exponential backoff on Groq API failures — app never crashes when AI is unavailable | Custom retry utility |
+
 
 ### 🔜 Coming Soon
 | Feature | Description |
 |---------|-------------|
-| Per-user Token Quota | Track AI usage per user per month in Prisma |
-| AI Usage Dashboard | Admin panel showing total AI calls, tokens used, and estimated cost |
 | Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
 | Document Q&A | Upload policy docs, query them in natural language (RAG) |
+| Shopping Agent | Autonomous agent that checks stock, drafts emails, flags anomalies |
 
 ### AI Roadmap
 
@@ -52,6 +56,19 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | POST | `/api/chat/prompt` | Shopping assistant with conversation history and few-shot prompting | Public |
 | POST | `/api/chat/stream` | Same assistant with word-by-word SSE streaming — used by the chat widget | Public |
 | POST | `/api/chat/generate-description` | Generate structured product description from product fields | Admin only |
+| POST | `/api/chat/tools` | Non-streaming assistant with tool use and product/order lookup | Protected |
+| GET | `/api/admin/ai-stats` | Total tokens, estimated cost, and per-user AI usage breakdown | Admin only |
+
+## AI Security
+
+| Layer | Implementation |
+|---|---|
+| Rate limiting | 20 requests per 15 minutes per IP across all AI endpoints |
+| Token quota | 50,000 tokens per user per month — resets automatically |
+| Input validation | Length limits + prompt injection pattern detection |
+| Output moderation | Full response scanned before delivery — harmful content replaced |
+| Tool call scoping | AI can never access another user's orders even if prompt-manipulated |
+| API key security | Keys in .env only — never exposed to client |
 
 #### Example — Chat Endpoint
 
