@@ -55,7 +55,6 @@ const authLimiter = rateLimit({
   message: { error: "Too many attempts, please try again later" },
 });
 
-// ✅ These lines go BEFORE app.use("/api/user", userRoutes)
 app.use("/api/user/login", authLimiter);
 app.use("/api/user/register", authLimiter);
 /* ---------- API Routes ---------- */

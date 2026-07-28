@@ -3,6 +3,8 @@ import Groq from "groq-sdk";
 import { Stream } from "groq-sdk/core/streaming.mjs";
 import { z } from "zod";
 import prisma from "../config/prisma.js";
+import { recordTokenUsage } from "../middleware/aiMiddleware.js";
+import { retryWithBackoff } from "../../client/src/utils/retryWithBackoff.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DescriptionSchema = z.object({
@@ -12,8 +14,7 @@ const DescriptionSchema = z.object({
   seoTags: z.array(z.string()),
 });
 const SYSTEM_PROMPT =
-  "You are a helpful shopping assistant for SneakerZone, an online sneaker store. You help customers find products, check availability, and answer questions about orders. Always be concise, friendly, and specific. Never make up product details, prices, or stock levels. If you cannot find what the customer needs, say so honestly. The store carries these brands: Nike, Adidas, Puma. Categories are: Men, Women, Kids. All prices are in dollars.";
-
+  "You are a helpful shopping assistant for SneakerZone, an online sneaker store. You help customers find products, check availability, and answer questions about orders. Always be concise, friendly, and specific. Never make up product details, prices, or stock levels. You cannot add items to the cart — if a customer wants to add something, tell them to click the Add to Cart button on the product page. The store carries these brands: Nike, Adidas, Puma. Categories are: Men, Women, Kids. All prices are in dollars.";
 const FEW_SHOT_EXAMPLES = [
   {
     role: "user",
@@ -147,6 +148,7 @@ export const streamChat = async (req, res) => {
   try {
     const { messages } = req.body;
     const userId = req.user?.id || null;
+    let totalTokensUsed = 0;
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
       "http://localhost:5173",
     ];
@@ -162,18 +164,20 @@ export const streamChat = async (req, res) => {
 
     res.flushHeaders();
 
-    const firstResponse = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      temperature: 0.7,
-      max_tokens: 1024,
-      tools,
-      tool_choice: "auto",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...FEW_SHOT_EXAMPLES,
-        ...messages,
-      ],
-    });
+    const firstResponse = await retryWithBackoff(() =>
+      groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
+        max_tokens: 1024,
+        tools,
+        tool_choice: "auto",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...FEW_SHOT_EXAMPLES,
+          ...messages,
+        ],
+      }),
+    );
 
     const firstMessage = firstResponse.choices[0].message;
 
@@ -184,30 +188,41 @@ export const streamChat = async (req, res) => {
 
       const toolResult = await executeTool(toolName, toolArgs, userId);
 
-      const stream = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
-        temperature: 0.7,
-        max_tokens: 1024,
-        stream: true,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...FEW_SHOT_EXAMPLES,
-          ...messages,
-          firstMessage,
-          {
-            role: "tool",
-            tool_call_id: toolCall.id,
-            content: JSON.stringify(toolResult),
-          },
-        ],
-      });
-
+      const stream = await retryWithBackoff(() =>
+        groq.chat.completions.create({
+          model: "llama-3.1-8b-instant",
+          temperature: 0.7,
+          max_tokens: 1024,
+          stream: true,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...FEW_SHOT_EXAMPLES,
+            ...messages,
+            firstMessage,
+            {
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult),
+            },
+          ],
+        }),
+      );
+      let buffer = "";
       for await (const chunk of stream) {
         const token = chunk.choices[0]?.delta?.content || "";
         if (token) {
+          buffer += token;
           res.write(`data:${JSON.stringify({ token })}\n\n`);
         }
       }
+      const { safe, text } = moderateOutput(buffer);
+      if (!safe) {
+        res.write(`data:${JSON.stringify({ correction: text })}\n\n`);
+      }
+
+      const usage = firstResponse.usage?.total_tokens || 0;
+      totalTokensUsed += usage;
+      await recordTokenUsage(userId, totalTokensUsed);
 
       res.write("data:[DONE]\n\n");
       res.end();
@@ -227,12 +242,17 @@ export const streamChat = async (req, res) => {
         ...messages,
       ],
     });
+    let buffer = "";
     for await (const chunk of stream) {
       const token = chunk.choices[0]?.delta?.content || "";
       if (token) {
+        buffer += token;
         res.write(`data:${JSON.stringify({ token })}\n\n`);
       }
     }
+    const usage = firstResponse.usage?.total_tokens || 0;
+    totalTokensUsed += usage;
+    await recordTokenUsage(userId, totalTokensUsed);
     res.write("data:[DONE]\n\n");
     res.end();
   } catch (error) {
@@ -344,7 +364,6 @@ export const generateProductDescription = async (req, res) => {
     res.status(500).json({ error: "Failed to generate description" });
   }
 };
-
 export const executeTool = async (toolName, args, userId) => {
   if (toolName === "searchProducts") {
     const products = await prisma.product.findMany({
@@ -404,19 +423,20 @@ export const chatWithTools = async (req, res) => {
     const { messages } = req.body;
     const userId = req.user?.id || null;
 
-    const firstResponse = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      temperature: 0.7,
-      max_tokens: 1024,
-      tool_choice: "auto",
-      tools,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...FEW_SHOT_EXAMPLES,
-        ...messages,
-      ],
-    });
-
+    const firstResponse = await retryWithBackoff(() =>
+      groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
+        max_tokens: 1024,
+        tool_choice: "auto",
+        tools,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...FEW_SHOT_EXAMPLES,
+          ...messages,
+        ],
+      }),
+    );
     const firstMessage = firstResponse.choices[0].message;
     if (firstMessage.tool_calls && firstMessage.tool_calls.length > 0) {
       const toolCall = firstMessage.tool_calls[0];
@@ -425,22 +445,24 @@ export const chatWithTools = async (req, res) => {
 
       const toolResult = await executeTool(toolName, toolArgs, userId);
 
-      const secondResponse = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
-        temperature: 0.7,
-        max_tokens: 1024,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...FEW_SHOT_EXAMPLES,
-          ...messages,
-          firstMessage,
-          {
-            role: "tool",
-            tool_call_id: toolCall.id,
-            content: JSON.stringify(toolResult),
-          },
-        ],
-      });
+      const secondResponse = await retryWithBackoff(() =>
+        groq.chat.completions.create({
+          model: "llama-3.1-8b-instant",
+          temperature: 0.7,
+          max_tokens: 1024,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...FEW_SHOT_EXAMPLES,
+            ...messages,
+            firstMessage,
+            {
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(toolResult),
+            },
+          ],
+        }),
+      );
       return res.json({
         reply: secondResponse.choices[0].message.content,
         toolUsed: toolName,
