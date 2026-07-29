@@ -4,7 +4,7 @@ import { Stream } from "groq-sdk/core/streaming.mjs";
 import { z } from "zod";
 import prisma from "../config/prisma.js";
 import { recordTokenUsage } from "../middleware/aiMiddleware.js";
-import { retryWithBackoff } from "../../client/src/utils/retryWithBackoff.js";
+import { retryWithBackoff } from "../utils/retryWithBackoff.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DescriptionSchema = z.object({
