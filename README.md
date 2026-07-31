@@ -34,12 +34,11 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | AI Usage Dashboard | Admin panel showing total calls, tokens used, estimated cost, and per-user breakdown | Prisma aggregation |
 | Retry + Error Handling | Exponential backoff on Groq API failures — app never crashes when AI is unavailable | Custom retry utility |
 | pgvector Embeddings | All 17 products embedded with Cohere text-embedding-3 model. Stored in PostgreSQL with HNSW index for fast cosine similarity search | Cohere + pgvector + Prisma |
-
+| Semantic Product Search | Natural language search using Cohere embeddings + pgvector. "Something for a teenager who likes running" returns relevant results by meaning not keywords | Cohere + pgvector + HNSW |
 
 ### 🔜 Coming Soon
 | Feature | Description |
 |---------|-------------|
-| Semantic Product Search | pgvector embeddings for "find something warm to wear in the rain" |
 | Document Q&A | Upload policy docs, query them in natural language (RAG) |
 | Shopping Agent | Autonomous agent that checks stock, drafts emails, flags anomalies |
 
