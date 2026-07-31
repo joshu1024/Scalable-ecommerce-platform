@@ -33,6 +33,7 @@ This project is being progressively upgraded with AI capabilities as part of a f
 | Per-user Token Quota | Tracks AI token usage per user per month in Prisma with automatic monthly reset | Prisma + PostgreSQL |
 | AI Usage Dashboard | Admin panel showing total calls, tokens used, estimated cost, and per-user breakdown | Prisma aggregation |
 | Retry + Error Handling | Exponential backoff on Groq API failures — app never crashes when AI is unavailable | Custom retry utility |
+| pgvector Embeddings | All 17 products embedded with Cohere text-embedding-3 model. Stored in PostgreSQL with HNSW index for fast cosine similarity search | Cohere + pgvector + Prisma |
 
 
 ### 🔜 Coming Soon
