@@ -53,7 +53,7 @@ const tools = [
     function: {
       name: "searchProducts",
       description:
-        "Search products by name, category, brand, or price range. Use this when the user asks about products, availability, or wants recommendations.",
+        "Search products by SPECIFIC filters — use this ONLY when the user mentions a specific brand (Nike, Adidas, Puma), specific category (Men, Women, Kids), or specific price range. Do NOT use this for vague or descriptive queries.",
       parameters: {
         type: "object",
         properties: {
@@ -133,7 +133,7 @@ const tools = [
     function: {
       name: "semanticSearchProducts",
       description:
-        "Search products by meaning and intent — use this when the user describes what they want in natural language rather than specific brand/category filters. E.g. 'something comfortable for running' or 'gift for my daughter'.",
+        "Search products by meaning — use this when the user describes what they want in vague or natural language WITHOUT specifying exact brand, category or price. Examples: 'something for a teenager', 'comfortable running shoes', 'gift for my son', 'shoes for rainy weather'. Always prefer this over searchProducts for descriptive queries.",
       parameters: {
         type: "object",
         properties: {
@@ -390,6 +390,7 @@ export const generateProductDescription = async (req, res) => {
   }
 };
 export const executeTool = async (toolName, args, userId) => {
+  console.log("Tool called:", toolName, "args:", args);
   if (toolName === "searchProducts") {
     const products = await prisma.product.findMany({
       where: {
