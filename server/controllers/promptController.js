@@ -3,8 +3,12 @@ import Groq from "groq-sdk";
 import { Stream } from "groq-sdk/core/streaming.mjs";
 import { z } from "zod";
 import prisma from "../config/prisma.js";
-import { recordTokenUsage } from "../middleware/aiMiddleware.js";
+import {
+  moderateOutput,
+  recordTokenUsage,
+} from "../middleware/aiMiddleware.js";
 import { retryWithBackoff } from "../utils/retryWithBackoff.js";
+import { semanticSearchProducts } from "../services/embedding.service.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DescriptionSchema = z.object({
@@ -124,6 +128,25 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "semanticSearchProducts",
+      description:
+        "Search products by meaning and intent — use this when the user describes what they want in natural language rather than specific brand/category filters. E.g. 'something comfortable for running' or 'gift for my daughter'.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description:
+              "The user's natural language description of what they want",
+          },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
 export const promptMessage = async (req, res) => {
   const { message } = req.body;
@@ -145,7 +168,9 @@ export const promptMessage = async (req, res) => {
   res.json({ reply: response.choices[0].message.content });
 };
 export const streamChat = async (req, res) => {
+  console.log("Request received");
   try {
+    console.log("Starting AI request");
     const { messages } = req.body;
     const userId = req.user?.id || null;
     let totalTokensUsed = 0;
@@ -163,7 +188,7 @@ export const streamChat = async (req, res) => {
     }
 
     res.flushHeaders();
-
+    console.log("Calling Groq...");
     const firstResponse = await retryWithBackoff(() =>
       groq.chat.completions.create({
         model: "llama-3.1-8b-instant",
@@ -178,7 +203,7 @@ export const streamChat = async (req, res) => {
         ],
       }),
     );
-
+    console.log("Groq replied");
     const firstMessage = firstResponse.choices[0].message;
 
     if (firstMessage.tool_calls && firstMessage.tool_calls.length > 0) {
@@ -415,7 +440,10 @@ export const executeTool = async (toolName, args, userId) => {
     });
     return order;
   }
-
+  if (toolName === "semanticSearchProducts") {
+    const results = await semanticSearchProducts(args.query, 5);
+    return results;
+  }
   return { error: "Unknown tool" };
 };
 export const chatWithTools = async (req, res) => {

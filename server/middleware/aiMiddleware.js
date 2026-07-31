@@ -77,21 +77,21 @@ export const recordTokenUsage = async (userId, tokensUsed) => {
     data: { aiTokensUsed: { increment: tokensUsed } },
   });
 };
-export const validateAiInput = async (req, res) => {
+export const validateAiInput = async (req, res, next) => {
   try {
     const { message, messages } = req.body;
-
     const userText =
       message ||
       (Array.isArray(messages)
-        ? messages.filter((m) => m.role === "user").at(-1)
+        ? messages.filter((m) => m.role === "user" && m.content?.trim()).at(-1)
+            ?.content
         : null);
     if (!userText) {
       return res.status(400).json({
         error: "Message is required",
       });
     }
-    if (userText > 1000) {
+    if (userText.length > 1000) {
       res.status(400).json({
         error: "Message too long: Please dont type more than 1000 words",
       });
@@ -103,6 +103,7 @@ export const validateAiInput = async (req, res) => {
     if (isInjection) {
       res.status(400).json({ error: "I cant process that request" });
     }
+    next();
   } catch (error) {
     console.error(error);
   }

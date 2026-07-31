@@ -38,11 +38,15 @@ app.use(
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
       }
 
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 /* ---------- Middleware ---------- */
@@ -54,7 +58,6 @@ const authLimiter = rateLimit({
   max: 10,
   message: { error: "Too many attempts, please try again later" },
 });
-
 app.use("/api/user/login", authLimiter);
 app.use("/api/user/register", authLimiter);
 /* ---------- API Routes ---------- */

@@ -1,6 +1,6 @@
 import prisma from "../config/prisma.js";
+import { embedProduct } from "../services/embedding.service.js";
 
-// ✅ Add product (Cloudinary-ready)
 export const addProduct = async (req, res) => {
   console.log("🔥 HIT addProduct controller");
   console.log("req.body:", req.body);
@@ -25,6 +25,9 @@ export const addProduct = async (req, res) => {
         stock: parseInt(stock) || 0,
       },
     });
+    embedProduct(product.id).catch((err) =>
+      console.error("Auto-embed failed:", err),
+    );
     res.status(201).json(product);
   } catch (error) {
     console.log("🔥 CAUGHT ERROR:", error);
@@ -107,7 +110,9 @@ export const updateProduct = async (req, res) => {
         images: imageUrls.length > 0 ? imageUrls : undefined,
       },
     });
-
+    embedProduct(product.id).catch((err) =>
+      console.error("Auto-embe failed", err),
+    );
     res.json({ message: "✅ Product updated successfully", product });
   } catch (error) {
     console.error("❌ Update product error:", error);
