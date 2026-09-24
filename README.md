@@ -1,12 +1,12 @@
 # 👟 SneakerZone — Full-Stack E-Commerce App + AI Features
 
-A production-ready full-stack ecommerce platform built with React, Redux Toolkit, Node.js, Express, PostgreSQL, and Prisma. Features JWT authentication, PayPal payments, Cloudinary image uploads, a full Admin Dashboard, and an AI-powered shopping assistant built with Groq and Llama 3.1.
+A production-ready full-stack ecommerce platform built with React, Redux Toolkit, Node.js, Express, PostgreSQL, and Prisma. Features JWT authentication, PayPal payments, Cloudinary image uploads, a full Admin Dashboard, and an AI-powered shopping assistant with semantic search built with Groq and Cohere.
 
 ![React](https://img.shields.io/badge/Frontend-React-blue)
 ![Node](https://img.shields.io/badge/Backend-Node.js-green)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
 ![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748)
-![Groq](https://img.shields.io/badge/AI-Groq%20%2F%20Llama%203.1-orange)
+![Groq](https://img.shields.io/badge/AI-Groq-orange)
 ![Cohere](https://img.shields.io/badge/Embeddings-Cohere-purple)
 ![License](https://img.shields.io/github/license/joshu1024/sneakerzone)
 
@@ -27,30 +27,29 @@ This project is being progressively upgraded with AI capabilities as part of a f
 
 | Feature | Description | Tech |
 |---------|-------------|------|
-| AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq / Llama 3.1 |
-| AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq / Llama 3.1 + Zod |
-| Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq / Llama 3.1 + SSE |
-| Natural Language Product Search | AI detects product queries, searches real PostgreSQL database via Prisma, and streams results word by word | Groq / Llama 3.1 + Tool use + SSE |
+| AI Chat Endpoint | Natural language shopping assistant with conversation history, assistant role, and few-shot prompting | Groq |
+| AI Product Description Generator | Generates title, description, bullet points, and SEO tags from product data. Returns validated JSON. | Groq + Zod |
+| Streaming Chat Widget | Word-by-word streaming response in the storefront UI with blinking cursor and stop functionality | Groq + SSE |
+| Natural Language Product Search | AI detects product queries, searches real PostgreSQL database via Prisma, and streams results word by word | Groq + Tool use + SSE |
 | AI Security Layer | Rate limiting per IP, prompt injection detection, output moderation, input sanitisation | express-rate-limit + custom middleware |
 | Per-user Token Quota | Tracks AI token usage per user per month in Prisma with automatic monthly reset | Prisma + PostgreSQL |
 | AI Usage Dashboard API | Admin panel showing total calls, tokens used, estimated cost, and per-user breakdown | Prisma aggregation |
 | Retry + Error Handling | Exponential backoff on Groq API failures — app never crashes when AI is unavailable | Custom retry utility |
-| pgvector Embeddings | All 17 products embedded with Cohere embed-english-v3.0 model. Stored in PostgreSQL with HNSW index for fast cosine similarity search | Cohere + pgvector + Prisma |
+| pgvector Embeddings | All 17 products embedded with Cohere embed-english-v3.0. Stored in PostgreSQL with HNSW index | Cohere + pgvector + Prisma |
 | Semantic Product Search | Natural language search using Cohere embeddings + pgvector. "Something for a teenager who likes running" returns relevant results by meaning not keywords | Cohere + pgvector + HNSW |
 
 ### 🔜 Coming Soon
 
 | Feature | Description |
 |---------|-------------|
-| Document Q&A | Continuing on Analytics Dashboard project — upload docs, query in natural language |
-| Shopping Agent | Standalone agent project — Phase 3 |
+| Shopping Agent | Standalone Phase 3 agent project — autonomous job application agent (Apply-AI) |
 
 ### 🗺️ AI Roadmap
 
 - ✅ **Phase 1** — AI integration fundamentals (Groq API, prompt engineering, streaming, function calling, security)
 - ✅ **Phase 2 (partial)** — pgvector semantic search (embeddings, HNSW index, cosine similarity)
-- 🔜 **Phase 2 (full RAG)** — Continues on Analytics Dashboard project (document Q&A, RAG pipeline)
-- 🔜 **Phase 3** — Agents (standalone project — autonomous agent with LangGraph/Mastra)
+- ✅ **Phase 2 (full RAG)** — Enterprise AI Knowledge Base — multi-tenant RAG SaaS ([separate project](https://github.com/joshu1024/Enterprise-ai-kb))
+- 🔄 **Phase 3** — Agents (Apply-AI — autonomous job application agent, in progress)
 - 🔜 **Phase 4** — Production AI (LangSmith tracing, evals, cost optimisation)
 
 ### 🔌 AI Endpoints
@@ -78,58 +77,39 @@ This project is being progressively upgraded with AI capabilities as part of a f
 
 | Decision | Why |
 |----------|-----|
-| Groq over OpenAI for chat | Free tier, faster inference (800 tokens/sec), same API shape |
+| Groq over OpenAI for chat | Free tier, fast inference, same API shape |
 | Cohere over OpenAI for embeddings | Free tier (1000 calls/month), no credit card, 1024-dim vectors |
-| pgvector over Pinecone | Already running PostgreSQL — no new service, no extra cost. Handles current scale (<100k vectors) with HNSW indexing |
-| Recursive chunking (Phase 2) | Preserves semantic boundaries better than fixed-size — splits on paragraphs → sentences → words |
+| pgvector over Pinecone | Already running PostgreSQL — no new service, no extra cost. Handles current scale with HNSW indexing |
 | Separate ProductEmbedding model | Prisma doesn't support vector type natively — keeps Product model clean and all existing queries untouched |
+| Raw fetch over Groq SDK for streaming | SDK v1.5.0 couldn't parse reasoning model streaming chunks — raw SSE reading is more explicit and reliable |
 
+### 📊 Example Requests
 
-#### Example — Chat Endpoint
-
-**Request:**
-```json
-POST /api/chat/prompt
-{
-  "messages": [
-    { "role": "user", "content": "do you have waterproof jackets?" }
-  ]
-}
-```
-
-**Response:**
-```json
-{
-  "reply": "Yes! We carry several waterproof jacket styles. Could you share your budget or preferred brand? That'll help me point you to the best options."
-}
-```
-
-#### Example — Streaming Chat Endpoint
-
-**Request:**
+**Streaming Chat:**
 ```json
 POST /api/chat/stream
 {
-  "messages": [
-    { "role": "user", "content": "do you have Nike shoes?" }
-  ]
+  "messages": [{ "role": "user", "content": "do you have Nike shoes?" }]
 }
 ```
 
-**Response (SSE stream):**
-```
 data:{"token":"Yes"}
 data:{"token":","}
 data:{"token":" we"}
 data:{"token":" carry"}
 data:{"token":" Nike"}
-data:{"token":" shoes"}
 data:[DONE]
-```
 
-#### Example — Product Description Generator
 
-**Request:**
+**Semantic Search (via chat):**
+
+User: "something comfortable for a teenager who likes running"
+Tool called: semanticSearchProducts
+Args: { "query": "comfortable running shoes for teenager" }
+Result: Top 5 products by vector similarity — not keyword match
+
+
+**Product Description Generator:**
 ```json
 POST /api/chat/generate-description
 {
@@ -140,8 +120,6 @@ POST /api/chat/generate-description
   "newPrice": 120
 }
 ```
-
-**Response:**
 ```json
 {
   "title": "Nike Air Max 90 — Iconic Comfort Sneakers",
@@ -166,14 +144,15 @@ POST /api/chat/generate-description
 - 💳 PayPal Sandbox Payment Integration
 - 📦 Order History & Tracking
 - 👤 User Profile Management
-- 🤖 AI Shopping Assistant — ask questions about products in natural language
+- 🤖 AI Shopping Assistant — streaming natural language chat with semantic product search
 
 ### 🧑‍💼 Admin Dashboard
 - 📦 **Product Management** — Add, Edit, Delete products with Cloudinary image uploads
-- 🤖 **AI Description Generator** — Generate product titles, descriptions, bullet points and SEO tags from product data using Groq/Llama 3.1
+- 🤖 **AI Description Generator** — Generate product titles, descriptions, bullet points and SEO tags
 - 👥 **User Management** — View all users, toggle roles, delete accounts
 - 🧾 **Order Management** — View all orders, update order status
 - 📊 **Analytics** — Revenue charts, order trends, stats overview powered by Recharts
+- 🧠 **AI Usage Stats** — Total tokens consumed, estimated cost, per-user breakdown
 
 ---
 
@@ -194,60 +173,63 @@ POST /api/chat/generate-description
 | Technology | Purpose |
 |------------|---------|
 | Node.js + Express | REST API server |
-| PostgreSQL | Relational database |
+| PostgreSQL + pgvector | Relational database + vector similarity search |
 | Prisma ORM | Database access and migrations |
 | JWT + bcryptjs | Authentication and password hashing |
 | PayPal REST API | Payment processing |
 | Cloudinary + Multer | Image storage and uploads |
-| express-rate-limit | Brute force protection |
-| Groq SDK | AI inference — Llama 3.1 8B Instant |
+| express-rate-limit | Rate limiting on AI and auth endpoints |
+| Groq API | LLM inference |
+| Cohere SDK | Text embeddings — embed-english-v3.0 |
 | Zod | AI output schema validation |
-| Server-sent Events (SSE) | Real-time token streaming from backend to React frontend |
+| Server-sent Events (SSE) | Real-time token streaming |
 
 ---
 
 ## 🔐 Security Features
 
-- **httpOnly cookies** — JWT stored in httpOnly cookie, not localStorage, protecting against XSS
+- **httpOnly cookies** — JWT stored in httpOnly cookie, not localStorage
 - **Role-based access control** — Separate auth and admin middleware on all protected routes
 - **bcrypt password hashing** — Passwords never stored in plain text
-- **Rate limiting** — Login and register endpoints limited to 10 requests per 15 minutes
+- **Rate limiting** — Login, register, and all AI endpoints rate limited
 - **CORS protection** — Only whitelisted origins can make requests
-- **Environment variables** — All secrets stored in .env, never committed to source control
+- **Environment variables** — All secrets in .env, never committed
 - **Prisma Role enum** — User roles enforced at database schema level
-- **AI route protection** — All AI endpoints sit behind existing auth middleware
-- **Input validation** — All AI inputs validated with Zod before reaching the model
+- **AI route protection** — All AI endpoints behind auth middleware
+- **Prompt injection detection** — Pattern matching on all AI inputs
+- **Output moderation** — AI responses scanned before reaching users
+- **Tool call scoping** — AI can never access another user's data
 
 ---
 
 ## 📂 Folder Structure
 
-```
 sneakerzone/
 │
-├── client/                     # React + Vite frontend
-│   ├── src/
-│   │   ├── app/                # Redux store setup
-│   │   ├── features/           # Redux slices (cart, product, user, order, admin)
-│   │   ├── components/         # Reusable UI components (NavBar, Footer, etc.)
-│   │   ├── pages/              # Home, Product, Cart, Checkout, Profile, Admin pages
-│   │   ├── layout/             # AdminLayout
-│   │   ├── middleware/         # ProtectedRoute, AdminRoute
-│   │   └── assets/             # Images, data.js
-│   ├── public/
-│   └── vite.config.js
+├── client/ # React + Vite frontend
+│ ├── src/
+│ │ ├── app/ # Redux store setup
+│ │ ├── features/ # Redux slices (cart, product, user, order, admin)
+│ │ ├── components/ # Reusable UI components + ChatWidget
+│ │ ├── pages/ # Home, Product, Cart, Checkout, Profile, Admin pages
+│ │ ├── layout/ # AdminLayout
+│ │ ├── middleware/ # ProtectedRoute, AdminRoute
+│ │ └── assets/ # Images, data.js
+│ └── vite.config.js
 │
-├── server/                     # Express + PostgreSQL backend
-│   ├── config/                 # Prisma client, Cloudinary config, env
-│   ├── controllers/            # Route controllers (user, product, cart, order, admin, prompt)
-│   ├── middleware/             # authMiddleware, adminMiddleware
-│   ├── prisma/                 # schema.prisma + migrations
-│   ├── routes/                 # Express route definitions
-│   ├── utils/                  # generateToken helper
-│   └── server.js
+├── server/ # Express + PostgreSQL backend
+│ ├── config/ # Prisma client, Cloudinary config
+│ ├── controllers/ # Route controllers (user, product, cart, order, admin, prompt)
+│ ├── middleware/ # authMiddleware, adminMiddleware, aiMiddleware
+│ ├── prisma/ # schema.prisma + migrations
+│ ├── routes/ # Express route definitions
+│ ├── scripts/ # embedProducts.js seed script
+│ ├── services/ # embedding.service.js
+│ ├── utils/ # generateToken, retryWithBackoff
+│ └── server.js
 │
 └── README.md
-```
+
 
 ---
 
@@ -261,19 +243,13 @@ cd sneakerzone
 
 ### 2. Install Dependencies
 ```bash
-# Frontend
-cd client
-npm install
-
-# Backend
-cd ../server
-npm install
+cd client && npm install
+cd ../server && npm install
 ```
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file inside the `server/` directory:
-
+`server/.env`:
 ```env
 DATABASE_URL=your_postgresql_connection_string
 JWT_SECRET=your_jwt_secret_key
@@ -284,35 +260,36 @@ CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 PAYPAL_CLIENT_ID=your_paypal_client_id
-PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_SECRET=your_paypal_secret
 GROQ_API_KEY=your_groq_api_key
+COHERE_API_KEY=your_cohere_api_key
 ```
 
-Create a `.env` file inside the `client/` directory:
-
+`client/.env`:
 ```env
 VITE_API_BASE_URL=http://localhost:4000
 VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
-Get a free Groq API key at [console.groq.com](https://console.groq.com)
-
 ### 4. Set Up the Database
 ```bash
 cd server
-npx prisma migrate dev --name init
+npx prisma db push
 npx prisma generate
 ```
 
-### 5. Run Development Servers
+### 5. Seed Product Embeddings
+```bash
+node scripts/embedProducts.js
+```
+
+### 6. Run Development Servers
 ```bash
 # Terminal 1 — Backend
-cd server
-npm run dev
+cd server && npm run dev
 
 # Terminal 2 — Frontend
-cd client
-npm run dev
+cd client && npm run dev
 ```
 
 App runs on: **http://localhost:5173**
@@ -322,36 +299,28 @@ App runs on: **http://localhost:5173**
 ## ☁️ Deployment
 
 ### Backend on Render
-1. Go to [Render.com](https://render.com) → New Web Service
-2. Connect your GitHub repository
-3. Set Root Directory → `server`
-4. Build Command: `npm install && npx prisma generate`
-5. Start Command: `npm start`
-6. Add environment variables including `GROQ_API_KEY`
+1. New Web Service → connect GitHub repo
+2. Root Directory: `server`
+3. Build Command: `npm install && npx prisma generate`
+4. Start Command: `npm start`
+5. Add all environment variables including `GROQ_API_KEY` and `COHERE_API_KEY`
 
 ### Frontend on Vercel
-1. Go to [Vercel.com](https://vercel.com) → Import GitHub repo
-2. Set Root Directory → `client`
-3. Add environment variables
-
-### Run Production Database Migrations
-```bash
-DATABASE_URL="your_render_postgres_url" npx prisma migrate deploy
-```
+1. Import GitHub repo → Root Directory: `client`
+2. Add `VITE_API_BASE_URL` and `VITE_PAYPAL_CLIENT_ID`
 
 ---
 
 ## 🗄️ Database Schema
 
-The app uses PostgreSQL with the following relational models:
-
-```
 User ──< Order ──< OrderItem >── Product
-User ──< Cart  ──< CartItem  >── Product
-```
+User ──< Cart ──< CartItem >── Product
+Product ──< ProductEmbedding (vector search)
 
-- **User** — stores credentials, role (user/admin)
+
+- **User** — credentials, role (user/admin), AI token usage tracking
 - **Product** — name, price, brand, category, images, stock
+- **ProductEmbedding** — 1024-dim Cohere vector per product for semantic search
 - **Cart / CartItem** — per-user server-side cart
 - **Order / OrderItem** — completed orders with status tracking
 
@@ -392,9 +361,9 @@ User ──< Cart  ──< CartItem  >── Product
 
 ## 🧑‍💼 Demo Admin Access
 
-A live admin demo is available for portfolio review. **Please reach out via [LinkedIn](#) or [email](#)** and I'll share temporary credentials — this keeps the demo account from being spammed or abused by bots scraping public READMEs.
+A live admin demo is available for portfolio review. **Please reach out via [LinkedIn](https://www.linkedin.com/in/joshua-kipamet-148698140/) or [email](mailto:joshuakipamet@gmail.com)** and I'll share temporary credentials.
 
-> ⚠️ This is a demo-only account for portfolio showcase. Never publish real or reusable credentials in a public README.
+> ⚠️ This is a demo-only account for portfolio showcase. Never publish real credentials in a public README.
 
 ---
 
@@ -402,9 +371,9 @@ A live admin demo is available for portfolio review. **Please reach out via [Lin
 
 **Joshua Kipamet Olting'idi**
 
-- 💼 [LinkedIn](#) <!-- add your profile URL -->
-- 🐦 [Twitter](#) <!-- add your handle -->
+- 💼 [LinkedIn](https://www.linkedin.com/in/joshua-kipamet-148698140/)
 - 💻 [GitHub @joshu1024](https://github.com/joshu1024)
+- 📧 joshuakipamet@gmail.com
 
 ---
 
@@ -417,7 +386,7 @@ A live admin demo is available for portfolio review. **Please reach out via [Lin
 - Vite + React Ecosystem
 - Render & Vercel
 - Groq — free LLM inference API
-- Meta — Llama 3.1 open source model
+- Cohere — free embeddings API
 
 ---
 
