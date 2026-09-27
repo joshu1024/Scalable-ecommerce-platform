@@ -363,8 +363,6 @@ Product ──< ProductEmbedding (vector search)
 
 A live admin demo is available for portfolio review. **Please reach out via [LinkedIn](https://www.linkedin.com/in/joshua-kipamet-148698140/) or [email](mailto:joshuakipamet@gmail.com)** and I'll share temporary credentials.
 
-> ⚠️ This is a demo-only account for portfolio showcase. Never publish real credentials in a public README.
-
 ---
 
 ## 🧑‍💻 Author
