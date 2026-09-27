@@ -42,7 +42,7 @@ This project is being progressively upgraded with AI capabilities as part of a f
 
 | Feature | Description |
 |---------|-------------|
-| Shopping Agent | Standalone Phase 3 agent project — autonomous job application agent (Apply-AI) |
+| Apply-AI | Standalone Phase 3 agent project — autonomous job application agent that researches companies, identifies skill gaps, and drafts tailored cover letters |
 
 ### 🗺️ AI Roadmap
 
