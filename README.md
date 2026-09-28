@@ -364,7 +364,16 @@ Product ──< ProductEmbedding (vector search)
 A live admin demo is available for portfolio review. **Please reach out via [LinkedIn](https://www.linkedin.com/in/joshua-kipamet-148698140/) or [email](mailto:joshuakipamet@gmail.com)** and I'll share temporary credentials.
 
 ---
+## ⚠️ Known Limitations & What I'd Do Next
 
+| Limitation | What I'd do next |
+|---|---|
+| Only 17 products — small embedding dataset | Add more products; semantic search quality improves with catalog size |
+| No re-ranking on semantic search | Add LLM re-ranking like Enterprise KB |
+| Groq model deprecations broke streaming twice | Move the model name to an env var + add a fallback model |
+| No end-to-end tests | Add Playwright for the checkout flow |
+| PayPal sandbox only | Real payments need production PayPal credentials |
+---
 ## 🧑‍💻 Author
 
 **Joshua Kipamet Olting'idi**
